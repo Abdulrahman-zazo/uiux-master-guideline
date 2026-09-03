@@ -1,0 +1,30 @@
+<!-- @dsCard group="Components" viewport="700x340" name="Data" subtitle="Stat tiles, status pills, tables" -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:28px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}.lbl{font:500 10px/1.4 var(--font-ui);letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { StatCard, StatusPill, DataTable, Card } = window.TrendDesignSystem_7e8edd;
+function Demo(){
+const rows=[{id:'#TR-4821',customer:'Layla Al-Harbi',status:'shipped',total:'612.00'},
+{id:'#TR-4820',customer:'Omar Nasser',status:'delivered',total:'249.00'},
+{id:'#TR-4819',customer:'Hana Qasim',status:'pending',total:'1,180.50'},
+{id:'#TR-4818',customer:'Yousef Bakr',status:'failed',total:'89.00'}];
+return(<div className="col" style={{gap:18}}>
+<div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
+<StatCard label="Revenue" value="184,290" unit="SAR" delta={12.4} deltaLabel="vs last week" icon="wallet"/>
+<StatCard label="Orders" value="1,284" delta={4.8} deltaLabel="vs last week" icon="package"/>
+<StatCard label="Returns" value="38" delta={-4.1} deltaLabel="vs last week" icon="undo-2"/>
+</div>
+<div className="row" style={{gap:8}}>
+<StatusPill status="pending"/><StatusPill status="processing"/><StatusPill status="shipped"/><StatusPill status="delivered"/><StatusPill status="cancelled"/><StatusPill status="failed"/><StatusPill status="review"/>
+</div>
+<Card padding="none" style={{overflow:'hidden'}}>
+<DataTable dense onRowClick={()=>{}} rows={rows} columns={[{key:'id',label:'Order'},{key:'customer',label:'Customer'},{key:'status',label:'Status',render:r=><StatusPill status={r.status}/>},{key:'total',label:'Total (SAR)',align:'end',numeric:true}]}/>
+</Card></div>)}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

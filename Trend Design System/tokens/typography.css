@@ -1,0 +1,29 @@
+/* Type — Madani Arabic for display, IBM Plex Sans Arabic for interface.
+   Both faces carry Arabic and Latin, so a single stack serves AR and EN. */
+:root{
+  --font-display:"Madani Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --font-ui:"IBM Plex Sans Arabic","Madani Arabic",system-ui,sans-serif;
+  --font-numeric:"IBM Plex Sans Arabic",system-ui,sans-serif;
+
+  --weight-regular:400;
+  --weight-medium:500;
+  --weight-semibold:600;
+
+  /* Scale — sizes, line-heights and tracking travel together */
+  --text-caption:12px;      --leading-caption:1.4;      --tracking-caption:.6px;
+  --text-body-sm:14px;      --leading-body-sm:1.43;     --tracking-body-sm:0;
+  --text-body:16px;         --leading-body:1.5;         --tracking-body:0;
+  --text-subheading:20px;   --leading-subheading:1.4;   --tracking-subheading:-.2px;
+  --text-heading-sm:24px;   --leading-heading-sm:1.33;  --tracking-heading-sm:-.24px;
+  --text-heading:36px;      --leading-heading:1.11;     --tracking-heading:-.36px;
+  --text-heading-lg:48px;   --leading-heading-lg:1.11;  --tracking-heading-lg:-1.2px;
+  --text-display:72px;      --leading-display:1;        --tracking-display:-1.8px;
+
+  /* Eyebrow — the wide-tracked category marker */
+  --tracking-eyebrow:.05em;
+
+  /* Fluid display sizes for responsive layouts */
+  --text-display-fluid:clamp(40px,7vw,72px);
+  --text-heading-lg-fluid:clamp(32px,5vw,48px);
+  --text-heading-fluid:clamp(26px,3.4vw,36px);
+}

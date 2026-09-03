@@ -1,0 +1,11 @@
+/* Radii — rounded geometry throughout; nothing square. */
+:root{
+  --radius-xs:6px;
+  --radius-sm:8px;
+  --radius-tag:12px;
+  --radius-input:12px;
+  --radius-card-sm:16px;
+  --radius-card:24px;
+  --radius-sheet:28px;
+  --radius-pill:9999px;
+}

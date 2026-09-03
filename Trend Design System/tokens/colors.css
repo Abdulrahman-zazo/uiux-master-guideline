@@ -1,0 +1,108 @@
+/* ── Trend colour system ───────────────────────────────────────────────
+   Base ramps first, then semantic aliases. Only semantic aliases should
+   appear in component code.
+   Brand anchors from the supplied brand sheet:
+     #6D1B72  deep purple   (C45 M100 Y0 K22)
+     #864596  mid purple    (C45 M88  Y0 K0)
+     #090909  brand black   (C75 M68  Y67 K89)
+   #984399 is the purple inside the supplied logo SVG — it sits between the
+   two sheet values and is used as the 500 step so the mark matches the UI.
+   ─────────────────────────────────────────────────────────────────────── */
+:root{
+  /* Purple ramp — the brand's only chromatic voice */
+  --purple-50:#F7F1F9;
+  --purple-100:#EEE0F2;
+  --purple-200:#DCC2E4;
+  --purple-300:#C89AD1;
+  --purple-400:#A96BB8;
+  --purple-500:#984399;
+  --purple-600:#864596;
+  --purple-700:#6D1B72;
+  --purple-800:#55155A;
+  --purple-900:#3D0F42;
+
+  /* Neutral ramp — warm-cast greys resolving to the brand black */
+  --neutral-0:#FFFFFF;
+  --neutral-25:#FAFAF9;
+  --neutral-50:#F5F5F4;
+  --neutral-100:#EBEBE9;
+  --neutral-200:#DCDCD8;
+  --neutral-300:#C2C2BD;
+  --neutral-400:#9E9E98;
+  --neutral-500:#79766F;
+  --neutral-600:#57544E;
+  --neutral-700:#3F3D39;
+  --neutral-800:#262523;
+  --neutral-900:#141413;
+  --neutral-950:#090909;
+
+  /* Functional hues — PROPOSED, pending brand-owner approval.
+     The supplied sheet has no status colours; e-commerce cannot ship
+     without them. Kept low-chroma so purple stays the loudest colour. */
+  --success-600:#2F7D5B;
+  --success-50:#E8F3EE;
+  --warning-600:#EDA32A;
+  --warning-50:#FFF9EB;
+  --danger-600:#EF463F;
+  --danger-50:#FFEDED;
+
+  /* ── Semantic: text ── */
+  --text-primary:var(--neutral-950);
+  --text-secondary:var(--neutral-600);
+  --text-muted:var(--neutral-500);
+  --text-disabled:var(--neutral-400);
+  --text-on-brand:var(--neutral-0);
+  --text-on-dark:var(--neutral-25);
+  --text-on-inverse:var(--neutral-25);
+  --text-brand:var(--purple-700);
+  --text-link:var(--purple-700);
+  --text-link-hover:var(--purple-900);
+  --text-success:var(--success-600);
+  --text-warning:var(--warning-600);
+  --text-danger:var(--danger-600);
+
+  /* ── Semantic: surfaces ── */
+  --surface-canvas:var(--neutral-50);
+  --surface-card:var(--neutral-0);
+  --surface-raised:var(--neutral-0);
+  --surface-sunken:var(--neutral-100);
+  --surface-inverse:var(--neutral-950);
+  --surface-brand:var(--purple-700);
+  --surface-brand-hover:var(--purple-800);
+  --surface-brand-subtle:var(--purple-50);
+  --surface-brand-subtle-hover:var(--purple-100);
+  --surface-input:var(--neutral-50);
+  --surface-overlay:rgba(9,9,9,.56);
+  --surface-success-subtle:var(--success-50);
+  --surface-warning-subtle:var(--warning-50);
+  --surface-danger-subtle:var(--danger-50);
+
+  /* ── Semantic: borders ── */
+  --border-hairline:var(--neutral-200);
+  --border-strong:var(--neutral-300);
+  --border-brand:var(--purple-700);
+  --border-focus:var(--purple-500);
+  --border-inverse:var(--neutral-800);
+
+  /* ── Semantic: icons ── */
+  --icon-default:var(--neutral-700);
+  --icon-muted:var(--neutral-400);
+  --icon-brand:var(--purple-700);
+  --icon-on-brand:var(--neutral-0);
+
+  /* ── Brand atmospherics ── */
+  --brand-wash:radial-gradient(72% 200% at 32% 46%, #F0E1F4 0%, #C89AD1 100%); /* @kind color */
+  --brand-wash-deep:radial-gradient(84% 210% at 28% 42%, #864596 0%, #3D0F42 100%); /* @kind color */
+  --focus-ring:0 0 0 3px rgba(152,67,153,.28);
+
+  /* Opaque control capsule over product imagery. Identical in both themes:
+     it sits on a photo, not on a surface, so it must not follow the theme. */
+  --surface-capsule:rgba(255,255,255,.92);
+  --icon-on-capsule:var(--neutral-800);
+
+  /* Foreground for content sitting directly on --brand-wash. The wash itself
+     inverts in dark theme, so never hardcode a purple over it. */
+  --text-on-wash:var(--purple-900);
+  --text-on-wash-soft:var(--purple-800);
+  --border-on-wash:var(--purple-700);
+}

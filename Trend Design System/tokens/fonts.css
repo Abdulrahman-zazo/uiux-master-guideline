@@ -1,0 +1,10 @@
+/* Madani Arabic — display / wordmark voice. Supplied by the brand owner as TTF.
+   NOT available on Google Fonts: these binaries are the only source. Confirm embedding rights. */
+@font-face{font-family:"Madani Arabic";src:url("../assets/fonts/MadaniArabic-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Madani Arabic";src:url("../assets/fonts/MadaniArabic-Medium.ttf") format("truetype");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Madani Arabic";src:url("../assets/fonts/MadaniArabic-SemiBold.ttf") format("truetype");font-weight:600;font-style:normal;font-display:swap}
+
+/* IBM Plex Sans Arabic — all interface text, Arabic and Latin. */
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("../assets/fonts/IBMPlexSansArabic-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("../assets/fonts/IBMPlexSansArabic-Medium.ttf") format("truetype");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("../assets/fonts/IBMPlexSansArabic-SemiBold.ttf") format("truetype");font-weight:600;font-style:normal;font-display:swap}

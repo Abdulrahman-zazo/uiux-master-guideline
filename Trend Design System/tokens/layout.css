@@ -1,0 +1,21 @@
+/* Layout — page frame and responsive breakpoints. */
+:root{
+  --page-max:1200px;
+  --page-max-wide:1440px;
+  --page-gutter:24px;
+  --section-gap:80px;
+  --card-padding:24px;
+  --element-gap:24px;
+  --header-height:72px;
+  --sidebar-width:264px;
+  --sidebar-width-collapsed:72px;
+  --bottom-nav-height:64px;
+
+  --bp-sm:480px;
+  --bp-md:768px;
+  --bp-lg:1024px;
+  --bp-xl:1280px;
+}
+@media (max-width:768px){
+  :root{--page-gutter:16px;--section-gap:48px;--card-padding:20px;--element-gap:16px;--header-height:60px}
+}

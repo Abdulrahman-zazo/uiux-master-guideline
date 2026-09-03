@@ -1,0 +1,51 @@
+/* Dark theme — apply [data-theme="dark"] on <html> or any subtree.
+   Purple lightens to 400/300 on dark so contrast stays >= 4.5:1;
+   the 700 brand purple is too dark to read against #090909. */
+[data-theme="dark"]{
+  --text-primary:var(--neutral-25);
+  --text-secondary:var(--neutral-300);
+  --text-muted:var(--neutral-400);
+  --text-disabled:var(--neutral-600);
+  --text-on-brand:var(--neutral-0);
+  --text-on-inverse:var(--neutral-950);
+  --text-brand:var(--purple-300);
+  --text-link:var(--purple-300);
+  --text-link-hover:var(--purple-200);
+
+  --surface-canvas:var(--neutral-950);
+  --surface-card:var(--neutral-900);
+  --surface-raised:var(--neutral-800);
+  --surface-sunken:#0F0F0E;
+  --surface-inverse:var(--neutral-25);
+  --surface-brand:var(--purple-600);
+  --surface-brand-hover:var(--purple-500);
+  --surface-brand-subtle:rgba(152,67,153,.16);
+  --surface-brand-subtle-hover:rgba(152,67,153,.26);
+  --surface-input:var(--neutral-800);
+  --surface-overlay:rgba(9,9,9,.72);
+  --surface-success-subtle:rgba(47,125,91,.18);
+  --surface-warning-subtle:rgba(154,100,16,.18);
+  --surface-danger-subtle:rgba(179,38,30,.18);
+
+  --border-hairline:#2E2D2A;
+  --border-strong:#403E3A;
+  --border-brand:var(--purple-400);
+  --border-focus:var(--purple-300);
+  --border-inverse:var(--neutral-200);
+
+  --icon-default:var(--neutral-300);
+  --icon-muted:var(--neutral-500);
+  --icon-brand:var(--purple-300);
+
+  --text-success:#6FBF9A;
+  --text-warning:#D9A84E;
+  --text-danger:#F08A83;
+
+  --brand-wash:radial-gradient(72% 200% at 32% 46%, #3D0F42 0%, #120411 100%); /* @kind color */
+  --brand-wash-deep:radial-gradient(84% 210% at 28% 42%, #55155A 0%, #090909 100%); /* @kind color */
+  --focus-ring:0 0 0 3px rgba(200,154,209,.32);
+  /* --surface-capsule / --icon-on-capsule are deliberately NOT overridden here. */
+  --text-on-wash:var(--neutral-25);
+  --text-on-wash-soft:var(--neutral-300);
+  --border-on-wash:rgba(255,255,255,.4);
+}
