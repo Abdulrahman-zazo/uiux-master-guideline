@@ -1,7 +1,13 @@
 import React from 'react';
 import { Icon } from '../core/Icon.jsx';
 
-export function FormField({ label, htmlFor, hint, error, required, optional, children, style }) {
+/* `errors` accepts the problem+json `errors[]` array; the first message whose
+   `field` matches `name` is shown. */
+export function FormField({ label, htmlFor, name, hint, error, errors, required, optional, children, style }) {
+  if (!error && Array.isArray(errors) && name) {
+    const hit = errors.find(e => e.field === name);
+    if (hit) error = hit.message;
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, ...style }}>
       {label && (

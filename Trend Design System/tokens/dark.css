@@ -26,6 +26,10 @@
   --surface-success-subtle:rgba(47,125,91,.18);
   --surface-warning-subtle:rgba(154,100,16,.18);
   --surface-danger-subtle:rgba(179,38,30,.18);
+  --surface-offline:var(--neutral-800);
+  --surface-tinted:rgba(152,67,153,.14);
+  --border-outline-brand:var(--purple-400);
+  --text-offline:var(--neutral-200);
 
   --border-hairline:#2E2D2A;
   --border-strong:#403E3A;

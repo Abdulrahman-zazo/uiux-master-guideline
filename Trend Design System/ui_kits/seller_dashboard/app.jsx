@@ -1,7 +1,7 @@
 const { EmptyState, Button } = window.TrendDesignSystem_7e8edd;
 
 function App() {
-  const shell = useKitShell('en');
+  const shell = useKitShellCompat('en');
   const [page, setPage] = React.useState('overview');
   const ar = shell.lang === 'ar';
   const titles = ar

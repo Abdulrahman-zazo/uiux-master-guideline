@@ -1,6 +1,3 @@
-/**
- * @startingPoint section="Dashboard" subtitle="Metric tile with delta" viewport="700x180"
- */
 export interface StatCardProps {
   /** Eyebrow-cased metric name. */
   label: string;

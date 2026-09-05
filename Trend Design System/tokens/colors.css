@@ -41,10 +41,10 @@
      without them. Kept low-chroma so purple stays the loudest colour. */
   --success-600:#2F7D5B;
   --success-50:#E8F3EE;
-  --warning-600:#EDA32A;
-  --warning-50:#FFF9EB;
-  --danger-600:#EF463F;
-  --danger-50:#FFEDED;
+  --warning-600:#9A6410;
+  --warning-50:#FBF1E0;
+  --danger-600:#B3261E;
+  --danger-50:#FBEAE8;
 
   /* ── Semantic: text ── */
   --text-primary:var(--neutral-950);
@@ -57,6 +57,7 @@
   --text-brand:var(--purple-700);
   --text-link:var(--purple-700);
   --text-link-hover:var(--purple-900);
+  --text-offline:var(--neutral-700);
   --text-success:var(--success-600);
   --text-warning:var(--warning-600);
   --text-danger:var(--danger-600);
@@ -76,6 +77,7 @@
   --surface-success-subtle:var(--success-50);
   --surface-warning-subtle:var(--warning-50);
   --surface-danger-subtle:var(--danger-50);
+  --surface-offline:var(--neutral-100);
 
   /* ── Semantic: borders ── */
   --border-hairline:var(--neutral-200);
@@ -89,6 +91,12 @@
   --icon-muted:var(--neutral-400);
   --icon-brand:var(--purple-700);
   --icon-on-brand:var(--neutral-0);
+
+  /* ── Trendsy additions (visual direction §3) ── */
+  --surface-tinted:var(--purple-50);          /* highlighted card, selected radio card, shop card */
+  --border-outline-brand:var(--purple-200);   /* outline button */
+  --text-price:var(--text-primary);           /* price is information, never purple */
+  --text-discount:var(--danger-600);          /* Slice 2 discount price */
 
   /* ── Brand atmospherics ── */
   --brand-wash:radial-gradient(72% 200% at 32% 46%, #F0E1F4 0%, #C89AD1 100%); /* @kind color */

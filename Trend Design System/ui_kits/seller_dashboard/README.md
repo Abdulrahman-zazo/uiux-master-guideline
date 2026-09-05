@@ -1,3 +1,5 @@
+> **PARKED — Out of MVP scope. Kept as shell reference for the merchant Console; redesign after merchant interviews.** (trend-design-system-gap-list.md §4)
+
 # UI kit — Trend seller dashboard
 
 The vendor-facing surface: a light 264px rail beside a 64px top bar. Four screens are built; every other nav item resolves to an honest "not built" empty state rather than an invented screen.

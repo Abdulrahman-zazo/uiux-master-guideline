@@ -1,13 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 
-/* Lucide, loaded from CDN. See readme.md → ICONOGRAPHY: the brand sources
-   shipped no icon set, so Lucide is a flagged substitution (geometric,
-   1.5–2px stroke) chosen to match the wordmark's clean geometry.
+/* Lucide (adopted icon set — master plan §9.6), loaded from unpkg (cdnjs does not mirror the UMD build).
+   Directional glyphs mirror under dir="rtl"; x, check, clock, phone and
+   numbers never do. Lucide's generated <svg> carries hard fill / stroke-width
+   attributes, so they are set on the svg after draw. */
+const MIRRORED = /^(chevron-(left|right)|chevrons-(left|right)|arrow-(left|right)|arrow-(up|down)-(left|right)|undo-2|redo-2|send|reply|corner-.*|list-indent|log-out|log-in|external-link|panel-(left|right).*)$/;
 
-   Lucide's generated <svg> carries hard fill="none" / stroke-width attributes,
-   so filled or custom-weight glyphs must be set on the svg itself after the
-   icons are drawn — inherited CSS loses to those attributes. */
-export function Icon({ name, size = 20, strokeWidth = 1.75, fill = 'none', color = 'currentColor', className = '', style }) {
+export function Icon({ name, size = 20, strokeWidth = 1.75, fill = 'none', color = 'currentColor', direction = 'auto', className = '', style }) {
   const ref = useRef(null);
   useEffect(() => {
     const apply = () => {
@@ -24,9 +23,11 @@ export function Icon({ name, size = 20, strokeWidth = 1.75, fill = 'none', color
     const t = setTimeout(apply, 300);
     return () => clearTimeout(t);
   }, [name, size, strokeWidth, fill]);
+  const isRtl = direction === 'rtl' || (direction === 'auto' && typeof document !== 'undefined' && document.documentElement.dir === 'rtl');
+  const mirror = isRtl && MIRRORED.test(name);
   return (
     <span ref={ref} className={className} aria-hidden="true"
-      style={{ display: 'inline-flex', width: size, height: size, color, flex: '0 0 auto', ...style }}>
+      style={{ display: 'inline-flex', width: size, height: size, color, flex: '0 0 auto', transform: mirror ? 'scaleX(-1)' : 'none', ...style }}>
       <i data-lucide={name} style={{ width: size, height: size }}></i>
     </span>
   );

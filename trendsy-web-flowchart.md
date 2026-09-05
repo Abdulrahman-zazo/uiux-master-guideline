@@ -22,7 +22,9 @@ Trendsy is an Arabic-first e-commerce platform connecting buyers with traditiona
  
 **All public pages (homepage, product, category, store, market) are server-rendered (SSR/ISR)** for SEO and performance. All authenticated pages (cart, checkout, orders, account) are client-side rendered only — SSR for authenticated pages is architecturally forbidden due to token rotation behavior.
  
----
+<!-- --- -->
+
+
  
 ## Entry Point
  

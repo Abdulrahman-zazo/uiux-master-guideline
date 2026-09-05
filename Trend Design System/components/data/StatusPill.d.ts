@@ -1,9 +1,10 @@
-export type TrendStatus =
-  | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded' | 'failed'
-  | 'active' | 'draft' | 'review' | 'suspended';
+export type OrderStatus =
+  | 'awaiting_payment' | 'payment_failed' | 'placed' | 'confirmed' | 'accepted' | 'rejected'
+  | 'shipped' | 'delivered' | 'delivery_failed' | 'cancelled' | 'return_requested' | 'returned' | 'completed';
 export interface StatusPillProps {
-  status: TrendStatus | string;
-  /** Override the default English label — pass the Arabic string in AR views. */
+  /** Raw enum from the API. Unknown values render neutral grey with the raw string. */
+  status: OrderStatus | string;
+  /** The server-resolved label (`statusLabel`). Always pass it when you have it. */
   label?: string;
   style?: React.CSSProperties;
 }

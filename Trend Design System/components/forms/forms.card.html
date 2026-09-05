@@ -1,31 +1,29 @@
-<!-- @dsCard group="Components" viewport="700x380" name="Forms" subtitle="Inputs, selects, toggles, search and quantity" -->
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<!-- @dsCard group="Components" viewport="700x520" name="Forms" subtitle="Inputs, GeoSelect, OTP, radio cards, reason picker" -->
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script src="../../_ds_bundle.js"></script>
-<style>body{margin:0;padding:28px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}.lbl{font:500 10px/1.4 var(--font-ui);letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}</style>
-</head><body><div id="root"></div>
-<script type="text/babel">
-const { FormField, Input, Textarea, Select, Checkbox, Radio, Switch, SearchField, QuantityStepper } = window.TrendDesignSystem_7e8edd;
+<style>body{margin:0;padding:24px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { FormField, Input, Textarea, Select, Checkbox, Radio, Switch, SearchField, QuantityStepper, GeoSelect, OTPField, RadioCard, ReasonPicker } = window.TrendDesignSystem_7e8edd;
 function Demo(){
-const [q,setQ]=React.useState('');const [c,setC]=React.useState(true);const [r,setR]=React.useState('mada');
-const [s,setS]=React.useState(true);const [n,setN]=React.useState(2);
-return(<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
-<FormField label="Full name" htmlFor="a" required><Input id="a" placeholder="Layla Al-Harbi"/></FormField>
-<FormField label="Email" htmlFor="b" hint="Order updates go here"><Input id="b" iconStart="mail" placeholder="you@example.com"/></FormField>
-<FormField label="Card number" htmlFor="c" error="Check this number"><Input id="c" invalid placeholder="4242 4242 4242 4242"/></FormField>
-<FormField label="City" htmlFor="d" optional><Select id="d" placeholder="Choose a city" options={['Riyadh','Jeddah','Dammam']}/></FormField>
-<FormField label="Search" ><SearchField value={q} onChange={setQ} placeholder="Search abayas, bags…" shortcut="⌘K"/></FormField>
-<FormField label="Price"><Input suffix="SAR" placeholder="0.00" inputMode="decimal"/></FormField>
-<FormField label="Order note"><Textarea rows={2} maxLength={120} placeholder="Leave at reception"/></FormField>
-<div className="col" style={{gap:12}}>
-<Checkbox checked={c} onChange={setC} label="Free shipping only"/>
-<Checkbox indeterminate label="Select all" onChange={()=>{}}/>
-<Radio name="p" value="mada" checked={r==='mada'} onChange={setR} label="Mada debit"/>
-<Radio name="p" value="cod" checked={r==='cod'} onChange={setR} label="Cash on delivery"/>
-<div className="row" style={{gap:20}}><Switch checked={s} onChange={setS} label="In stock"/><QuantityStepper value={n} onChange={setN}/></div>
+const [geo,setGeo]=React.useState({governorate:'SY.DMS',city:'SY.DMS.DMC',area:'SY.DMS.DMC.OLD'});const [otp,setOtp]=React.useState('48');const [n,setN]=React.useState(2);const [r,setR]=React.useState({});
+const tree=[{path:'SY',kind:'country',name:'سوريا',children:[{path:'SY.DMS',kind:'governorate',name:'محافظة دمشق',children:[{path:'SY.DMS.DMC',kind:'city',name:'مدينة دمشق',children:[{path:'SY.DMS.DMC.OLD',kind:'area',name:'دمشق القديمة',children:[{path:'SY.DMS.DMC.OLD.HAMIDIYAH',kind:'neighborhood',name:'الحميدية',children:[]},{path:'SY.DMS.DMC.OLD.HARIQA',kind:'neighborhood',name:'الحريقة',children:[]}]},{path:'SY.DMS.DMC.MUHAJIRIN',kind:'area',name:'المهاجرين',children:[{path:'SY.DMS.DMC.MUHAJIRIN.SHAALAN',kind:'neighborhood',name:'الشعلان',children:[]}]}]}]},{path:'SY.RIF',kind:'governorate',name:'ريف دمشق',children:[{path:'SY.RIF.JARAMANA',kind:'city',name:'جرمانا',children:[]}]}]}];
+return(<div className="col" style={{gap:16}}>
+<SearchField onChange={()=>{}} shortcut="⌘K"/>
+<GeoSelect tree={tree} value={geo} onChange={setGeo} lang="ar"/>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+<FormField label="وصف العنوان" required hint="أقرب معلم، البناء، الطابق"><Textarea rows={2} maxLength={500} placeholder="بناء الياسمين، طابق ٣"/></FormField>
+<div className="col" style={{gap:10}}>
+<FormField label="رقم الهاتف للتوصيل" required errors={[{field:'phone',message:'رقم الهاتف غير صحيح'}]} name="phone"><Input dir="ltr" inputMode="tel" iconStart="phone" defaultValue="+963 9" invalid/></FormField>
+<div className="row" style={{gap:16}}><Checkbox checked onChange={()=>{}} label="حفظ كعنوان افتراضي"/><Switch checked onChange={()=>{}} label="تنبيهات"/><QuantityStepper value={n} onChange={setN}/></div>
+</div></div>
+<OTPField value={otp} onChange={setOtp}/>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+<RadioCard name="p" value="cod" checked icon="banknote" title="الدفع نقداً عند الاستلام" description="ادفع لمندوب التوصيل عند استلام طلبك."/>
+<ReasonPicker reasons={[{code:'changed_mind',label:'غيرت رأيي'},{code:'wrong_item',label:'طلبت المنتج الخطأ'}]} value={r} onChange={setR} lang="ar"/>
 </div></div>)}
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
 </script></body></html>

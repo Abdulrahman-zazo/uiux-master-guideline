@@ -1,8 +1,15 @@
 import React from 'react';
 import { Icon } from '../core/Icon.jsx';
 
-export function SearchField({ value = '', onChange, onSubmit, placeholder = 'Search', size = 'md', shortcut, style }) {
+export function SearchField({ value = '', onChange, onSubmit, placeholder = 'ابحث عن منتج، محل، أو سوق', size = 'md', shortcut, style }) {
   const [focus, setFocus] = React.useState(false);
+  const [narrow, setNarrow] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const on = () => setNarrow(mq.matches);
+    on(); mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
   const H = { sm: 36, md: 44, lg: 52 };
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSubmit && onSubmit(value); }}
@@ -21,7 +28,7 @@ export function SearchField({ value = '', onChange, onSubmit, placeholder = 'Sea
         <span onClick={() => onChange && onChange('')} style={{ display: 'flex', cursor: 'pointer', color: 'var(--icon-muted)' }}>
           <Icon name="x" size={16} strokeWidth={2} />
         </span>
-      ) : shortcut ? (
+      ) : shortcut && !narrow ? (
         <kbd style={{
           fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-muted)',
           border: '1px solid var(--border-hairline)', borderRadius: 'var(--radius-xs)',

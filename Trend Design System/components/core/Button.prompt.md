@@ -1,11 +1,9 @@
-The pill action control — every Trend button is fully rounded; there are no square buttons in the system.
+The pill action control. No shadow, no lift, no scale — hover shifts the tint, press sinks the fill.
 
 ```jsx
-<Button variant="primary" size="lg" iconEnd="arrow-right">Shop new arrivals</Button>
-<Button variant="secondary">Add to wishlist</Button>
-<Button variant="ghost" iconStart="filter" size="sm">Filter</Button>
+<Button variant="primary" size="lg" fullWidth>أضف إلى السلة</Button>
+<Button variant="outline">العودة إلى السلة</Button>
+<Button variant="primary" loading processingLabel="جارٍ إنشاء الطلب…">تأكيد الطلب</Button>
 ```
 
-One `primary` per viewport — the purple fill loses its charge when repeated.
-`inverse` is the white pill used over the brand wash or product photography.
-Hover deepens the fill and adds `--shadow-brand`; press scales to .97.
+One `primary` per screen, always paired with an `outline` or `ghost`. For checkout/cancel (idempotent calls) use `loading` + `processingLabel`; the button locks and the screen re-renders from the response — never optimistic.

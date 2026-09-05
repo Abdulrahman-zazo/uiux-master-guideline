@@ -1,7 +1,4 @@
 export interface NavLink { id: string; label: string }
-/**
- * @startingPoint section="Navigation" subtitle="Sticky storefront header, dark or light" viewport="1200x160"
- */
 export interface TopNavProps {
   links?: Array<string | NavLink>;
   /** id of the current link — gets a 2px underline. */

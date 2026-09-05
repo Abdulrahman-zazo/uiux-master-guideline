@@ -1,3 +1,5 @@
+> **PARKED — Out of MVP scope. Kept as shell reference for the admin Console.** (trend-design-system-gap-list.md §4)
+
 # UI kit — Trend admin panel
 
 The platform-operations surface. Same shell grammar as the seller dashboard (264px rail + 64px bar) so operators moving between them aren't relearning layout — only the rail label ("Admin" vs "Seller") and content differ.

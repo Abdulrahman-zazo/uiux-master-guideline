@@ -2,20 +2,21 @@ import React from 'react';
 
 const PADS = { none: 0, sm: 16, md: 24, lg: 32 };
 
-export function Card({ children, padding = 'md', radius = 'card', elevation = 'sm', interactive, bordered = true, as: Tag = 'div', style, ...rest }) {
+/* Hairline always, shadow never. Depth is a tint step, not a lift.
+   Source: trendsy-visual-direction.md §2 ("Cards"). */
+export function Card({ children, padding = 'md', radius = 'card', tone = 'default', interactive, bordered = true, as: Tag = 'div', style, ...rest }) {
   const [hover, setHover] = React.useState(false);
-  const shadows = { none: 'none', sm: 'var(--shadow-sm)', md: 'var(--shadow-md)', lg: 'var(--shadow-lg)', xl: 'var(--shadow-xl)' };
+  const bg = tone === 'tinted' ? 'var(--surface-tinted)' : tone === 'sunken' ? 'var(--surface-sunken)' : 'var(--surface-card)';
   return (
     <Tag
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{
-        background: 'var(--surface-card)',
+        background: interactive && hover ? (tone === 'tinted' ? 'var(--purple-100)' : 'var(--surface-canvas)') : bg,
         border: bordered ? '1px solid var(--border-hairline)' : 'none',
         borderRadius: radius === 'sm' ? 'var(--radius-card-sm)' : radius === 'sheet' ? 'var(--radius-sheet)' : 'var(--radius-card)',
-        boxShadow: interactive && hover ? 'var(--shadow-lg)' : shadows[elevation],
+        boxShadow: 'none',
         padding: PADS[padding],
-        transform: interactive && hover ? 'translateY(-2px)' : 'none',
-        transition: 'box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out)',
+        transition: 'background-color var(--duration-fast) var(--ease-out)',
         cursor: interactive ? 'pointer' : 'default',
         ...style,
       }} {...rest}>

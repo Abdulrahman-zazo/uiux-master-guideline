@@ -1,11 +1,11 @@
-Renders a Lucide glyph; the only icon primitive in the system — never hand-write an SVG in Trend UI.
+Renders a Lucide glyph; the only icon primitive in the system — never hand-write an SVG, never use emoji or Unicode as an icon.
 
 ```jsx
-<Icon name="shopping-bag" size={20} />
-<Icon name="star" size={14} color="var(--icon-brand)" />
-<Icon name="star" size={14} fill="currentColor" strokeWidth={0} />  {/* solid glyph */}
+<Icon name="shopping-cart" size={20} />
+<Icon name="chevron-left" />              {/* mirrors automatically under dir="rtl" */}
+<Icon name="star" fill="currentColor" strokeWidth={0} />
 ```
 
-Requires the Lucide UMD script on the page:
-`<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>`.
-Icons inherit `currentColor` — colour them by setting `color` on the parent.
+Requires Lucide on the page:
+`<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>`
+Directional glyphs (`chevron-*`, `arrow-*`, `undo-2`, `send`) flip in RTL; `x`, `check`, `clock`, `phone` never do.

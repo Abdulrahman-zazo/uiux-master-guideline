@@ -1,27 +1,20 @@
-export interface Product {
-  name: string;
-  brand?: string;
-  price: number;
-  compareAt?: number;
-  image?: string;
-  rating?: number;
-  reviews?: number;
-  /** Free-text flag rendered as an inverse badge, e.g. "New". */
-  badge?: string;
-  /** CSS aspect-ratio for the media frame. Default "3 / 4". */
-  ratio?: string;
+import type { MoneyValue } from './Money';
+export interface ProductCardData {
+  id: string; slug: string; name: string; price: MoneyValue; imageUrl?: string;
+  storeId: string; storeName: string; categoryId: string;
+  /** Client-side flag (from cart `available` or store_inactive); dims the tile. */
+  available?: boolean;
 }
-/**
- * @startingPoint section="Commerce" subtitle="Catalogue product card, grid and row" viewport="700x360"
- */
 export interface ProductCardProps {
-  product: Product;
+  /** A ProductCardDto from GET public/products. Price renders via Money — never formatted client-side. */
+  product: ProductCardData;
+  /** Market name resolved from the store; appended after the store name. */
+  marketName?: string;
+  /** Shows the "صُوِّر في المحل" chip (on by default — all fixtures are shop-shot). */
+  shopShot?: boolean;
   onClick?: () => void;
-  /** Passing a handler reveals the wishlist heart. */
-  onWishlist?: () => void;
-  wishlisted?: boolean;
-  /** grid = vertical catalogue tile · row = compact horizontal (cart, wishlist, search) */
   layout?: 'grid' | 'row';
+  lang?: 'ar' | 'en';
   style?: React.CSSProperties;
 }
 export declare function ProductCard(props: ProductCardProps): JSX.Element;

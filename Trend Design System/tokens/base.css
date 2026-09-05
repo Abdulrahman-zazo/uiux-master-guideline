@@ -10,3 +10,5 @@ a{color:var(--text-link);text-decoration:none;transition:color var(--duration-fa
 a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
 :focus-visible{outline:none;box-shadow:var(--focus-ring)}
 [dir="rtl"]{font-family:var(--font-ui)}
+/* Every numeral in Trendsy is tabular Latin. */
+.tnum,[data-numeric]{font-variant-numeric:tabular-nums;font-feature-settings:var(--numeric-features)}

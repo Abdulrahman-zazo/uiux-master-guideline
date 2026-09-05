@@ -1,11 +1,11 @@
 export interface CardProps {
   children?: React.ReactNode;
-  /** none for full-bleed media cards, md (24px) default. */
   padding?: 'none' | 'sm' | 'md' | 'lg';
-  /** card 24px · sm 16px (small media cards) · sheet 28px (mobile sheets) */
+  /** card 24px · sm 16px (media/product) · sheet 28px */
   radius?: 'card' | 'sm' | 'sheet';
-  elevation?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-  /** Adds hover lift + deeper shadow. Use on clickable cards only. */
+  /** default white · tinted purple-50 (shop card, selected radio card, confirmation-call panel) · sunken */
+  tone?: 'default' | 'tinted' | 'sunken';
+  /** Hover shifts the background tint. No lift, no shadow. */
   interactive?: boolean;
   bordered?: boolean;
   as?: keyof JSX.IntrinsicElements;

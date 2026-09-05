@@ -1,30 +1,19 @@
-# UI kit — Trend web storefront
+# UI kit — Trendsy web storefront
 
-The shopper-facing web experience: **home → catalogue → product → bag → checkout → confirmation**, in English and Arabic, light and dark.
+The 19 web routes from `trendsy-uxui-master-plan.md` §8, Arabic-first (`dir="rtl"`), content column 1200px, header bar 1440px. A route jumper sits bottom-corner for review; the header, category row and footer are the real chrome.
 
-## Screens
+| File | Routes |
+|---|---|
+| `chrome.jsx` | `SiteHeader` (dark bar: logo · dominant search · cart · account/sign-in) · `CategoryRow` · `SiteFooter` (pages + promise) · `WSection` |
+| `discovery.jsx` | `/` Home (search hero on the wash, 6-up category glyph tiles, 5 featured markets, 4-up new arrivals + `LoadMore`) · `/search` + `/c/<slug>` (left-rail filters, sub-category chips, no page numbers) · `/m` markets index · `/m/<slug>` · `/s/<slug>` · `/p/<slug>` PDP (gallery 5/12, sticky buy box 7/12) |
+| `checkout.jsx` | `/cart` (grouped by store, sticky summary, fee absent) · `/login` (phone → OTP card) · `/checkout` (3 collapsible steps, summary sticky, fee appears at review, mandatory call line, primary locks) · `/checkout/success` (one `OrderCard` per order, print-friendly) |
+| `account.jsx` | `/orders` (table) · `/orders/<id>` (timeline start-side, snapshot end-side, cancel → reason picker) · `/account/*` shell with sidebar: addresses, language, sessions (single sign-out-everywhere) · `/pages/<slug>` · 404 / error / 429 |
+| `app.jsx` | Router, cart state, guest toggle, offline banner |
 
-| File | Screen | Notes |
-|---|---|---|
-| `home.jsx` | Home | Brand-wash hero, trust strip, category rail, two product rails, deep-wash sale banner, editorial statement, dark footer |
-| `catalog.jsx` | Category / PLP | Breadcrumb, result count, sort, 232px filter rail (category, price, size, rating), 12-tile grid, pagination |
-| `product.jsx` | Product detail | Thumb-rail gallery, variant pickers, stock, seller card, description / reviews / shipping tabs, review histogram, related rail |
-| `checkout.jsx` | Bag · Checkout · Confirmation | Bag with live totals, 3-step checkout (contact / delivery / payment incl. Mada + Tabby), order confirmation with tracking progress |
-| `app.jsx` | Router + state | Cart state, toast, EN/AR + theme toggles in the header |
-
-## How to run
-
-Open `index.html`. It loads `../../styles.css`, the compiled `../../_ds_bundle.js`, Lucide from CDN, then the screen files.
-
-## Interactions that work
-
-- Add to bag from the PDP → toast → bag → checkout → confirmation
-- Quantity stepper and line removal update the summary and the header bag count
-- **ع / EN** in the header flips `dir`, `lang`, copy, currency symbol and numerals
-- **Moon / sun** flips `[data-theme]` on `<html>`
+`/q/<code>` is a redirect with no UI beyond a spinner; `/join` is deferred (content unwritten).
 
 ## Honest gaps
-
-- **No product photography was supplied.** Every visual is `ProductMedia`'s labelled placeholder. Send real photos and they fill in with no code change.
-- Search, filters, sort and pagination are cosmetic — they don't filter the fixture.
-- These screens are a brand-accurate recreation built from the brand sheet, fonts and `DESIGN (1).md` mood, **not** a recreation of the TrendSy Figma file (which was unreachable). Layout decisions are ours and need your review.
+- No image host is reachable; every visual is `ProductMedia`'s labelled frame.
+- 10 products / 6 stores / 4 category roots are design-only (`fixture: true`).
+- Search, sort and filter are cosmetic against the fixture except the market filter.
+- Layout is ours: the Figma file was never readable, and the plan asks Ahmet whether existing code for `/`, `/c`, `/p`, `/cart`, `/login` should be matched or replaced.

@@ -1,8 +1,8 @@
-The canonical order / listing / seller state pill. Use this instead of picking Badge tones by hand so a status looks the same everywhere.
+Order / shipment status as a capsule. Raw enum in, server label out; tone is looked up, never guessed.
 
 ```jsx
-<StatusPill status="shipped" />
-<StatusPill status="delivered" label="تم التوصيل" />
+<StatusPill status={order.status} label={order.statusLabel} />
+<StatusPill status="some_future_status" />   {/* neutral grey, raw text */}
 ```
 
-Fulfilment progress (processing, shipped) is purple; terminal success is green; failures red; closed states neutral.
+Tone map: placed → warning · confirmed/accepted/shipped → purple tint · delivered/completed → success · rejected/delivery_failed/payment_failed → danger · cancelled/returned → neutral.

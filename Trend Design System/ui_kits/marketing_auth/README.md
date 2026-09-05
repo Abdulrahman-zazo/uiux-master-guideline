@@ -1,3 +1,5 @@
+> **PARKED — Deferred — /join content is unwritten and auth moved into the storefront kit as phone+OTP.** (trend-design-system-gap-list.md §4)
+
 # UI kit — Trend marketing site & auth
 
 Seller acquisition and account entry: the surfaces that sell *Trend itself* rather than products.

@@ -1,30 +1,24 @@
-<!-- @dsCard group="Components" viewport="700x340" name="Data" subtitle="Stat tiles, status pills, tables" -->
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<!-- @dsCard group="Components" viewport="700x440" name="Data & orders" subtitle="Status pills (13 statuses), timeline, order card, address card, table" -->
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script src="../../_ds_bundle.js"></script>
-<style>body{margin:0;padding:28px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}.lbl{font:500 10px/1.4 var(--font-ui);letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}</style>
-</head><body><div id="root"></div>
-<script type="text/babel">
-const { StatCard, StatusPill, DataTable, Card } = window.TrendDesignSystem_7e8edd;
-function Demo(){
-const rows=[{id:'#TR-4821',customer:'Layla Al-Harbi',status:'shipped',total:'612.00'},
-{id:'#TR-4820',customer:'Omar Nasser',status:'delivered',total:'249.00'},
-{id:'#TR-4819',customer:'Hana Qasim',status:'pending',total:'1,180.50'},
-{id:'#TR-4818',customer:'Yousef Bakr',status:'failed',total:'89.00'}];
-return(<div className="col" style={{gap:18}}>
-<div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
-<StatCard label="Revenue" value="184,290" unit="SAR" delta={12.4} deltaLabel="vs last week" icon="wallet"/>
-<StatCard label="Orders" value="1,284" delta={4.8} deltaLabel="vs last week" icon="package"/>
-<StatCard label="Returns" value="38" delta={-4.1} deltaLabel="vs last week" icon="undo-2"/>
-</div>
-<div className="row" style={{gap:8}}>
-<StatusPill status="pending"/><StatusPill status="processing"/><StatusPill status="shipped"/><StatusPill status="delivered"/><StatusPill status="cancelled"/><StatusPill status="failed"/><StatusPill status="review"/>
-</div>
-<Card padding="none" style={{overflow:'hidden'}}>
-<DataTable dense onRowClick={()=>{}} rows={rows} columns={[{key:'id',label:'Order'},{key:'customer',label:'Customer'},{key:'status',label:'Status',render:r=><StatusPill status={r.status}/>},{key:'total',label:'Total (SAR)',align:'end',numeric:true}]}/>
-</Card></div>)}
+<style>body{margin:0;padding:24px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { StatusPill, Timeline, OrderCard, AddressCard, DataTable, StatCard, Card, Money } = window.TrendDesignSystem_7e8edd;
+const ev=[{seq:1,status:'placed',label:'تم استلام الطلب',occurredAt:'2026-08-31T10:00:00.000Z',note:null},{seq:2,status:'confirmed',label:'تم التأكيد بالهاتف',occurredAt:'2026-08-31T10:30:00.000Z',note:null},{seq:3,status:'accepted',label:'المحل يجهّز الطلب',occurredAt:'2026-08-31T11:00:00.000Z',note:'سيصل خلال ساعات المساء'},{seq:4,status:'shipped',label:'في الطريق إليك',occurredAt:'2026-08-31T12:00:00.000Z',note:null}];
+const order={id:'o',orderNumber:'TS-000124',storeName:'أنوال دمشق',status:'shipped',statusLabel:'في الطريق إليك',itemsCount:1,total:{ amountMinor: "12500000", currency: "SYP", display: "125,000.00" },createdAt:'2026-08-31T10:00:00.000Z'};
+const addr={label:'المنزل',description:'بناء الياسمين، طابق ٣، قرب صيدلية الشعلان',phone:'+963900000001',isDefault:true};
+function Demo(){return(<div className="col" style={{gap:16}}>
+<div className="row" style={{gap:8}}>{['placed','confirmed','accepted','shipped','delivered','completed','rejected','delivery_failed','cancelled','return_requested','returned'].map(s=><StatusPill key={s} status={s}/>)}<StatusPill status="future_state"/></div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1.3fr',gap:16,alignItems:'start'}}>
+<Card><Timeline events={ev} lang="ar"/></Card>
+<div className="col" style={{gap:10}}>
+<OrderCard order={order} onOpen={()=>{}} lang="ar"/>
+<AddressCard address={addr} placeLabel="دمشق › المهاجرين › الشعلان" onEdit={()=>{}} onDelete={()=>{}}/>
+<Card padding="none" style={{overflow:'hidden'}}><DataTable dense rows={[{id:'TS-000123',s:'placed',l:'بانتظار التأكيد',t:{ amountMinor: "9000000", currency: "SYP", display: "90,000.00" }},{id:'TS-000117',s:'delivered',l:'تم التوصيل',t:{ amountMinor: "9000000", currency: "SYP", display: "90,000.00" }}]} columns={[{key:'id',label:'الطلب',numeric:true},{key:'s',label:'الحالة',render:r=><StatusPill status={r.s} label={r.l}/>},{key:'t',label:'الإجمالي',align:'end',render:r=><Money value={r.t} size="sm"/>}]}/></Card>
+</div></div></div>)}
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
 </script></body></html>

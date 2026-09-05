@@ -1,286 +1,117 @@
-# Trend — Design System
+# Trendsy — Design System
 
-**Trend** is a fashion, beauty and lifestyle **eCommerce marketplace for the Gulf**: shoppers browse curated pieces from independent regional ateliers; sellers run their own stores through a seller dashboard; a platform operations team moderates listings and sellers. Every shopper-facing surface is **bilingual Arabic / English** and must work RTL and LTR, in light and dark.
+**Trendsy** is an **Arabic-first e-commerce marketplace for the traditional souqs of Damascus**. Buyers search for a product, see a real photo taken inside a named shop with a final price in Syrian pounds, add to a cart that survives a network drop, give a phone number only at checkout, pay cash on delivery after a confirmation call, and follow an event timeline until the courier arrives. Merchants are traditional sellers with no digital habits; the network is 2–8 Mbps with power cuts; there is no street addressing.
 
-The brand is deliberately narrow: **one purple, one black, warm greys, and nothing else.** Purple is the whole chromatic vocabulary — it appears on the primary action, the active state, the discount price and the brand wash, and now5here else.
+The brand is deliberately narrow: **Trend's purple and warm greys, Stripe's flatness, Morflax's shapes.** One purple, hairlines instead of shadows, pill buttons and rounded cards.
 
 ---
 
-## Sources this system was built from
+## Binding sources (in precedence order)
 
-| Source | Status | Notes |
-| --- | --- | --- |
-| Brand sheet (`assets/brand-sheet.png`) | ✅ used | Wordmark + three-colour palette: `#6D1B72`, `#864596`, `#090909`, with CMYK/RGB/HSB values |
-| Logo (`assets/logo-trend.svg`) | ✅ used | Real vector supplied by the brand owner. Internal purple is `#984399`, between the two sheet values — recorded as `--purple-500` |
-| Fonts — Madani Arabic (Regular/Medium/SemiBold TTF) | ✅ used | Display face. **Not available on Google Fonts** — the supplied TTFs are the only source |
-| Fonts — IBM Plex Sans Arabic (Regular/Medium/SemiBold TTF) | ✅ used | Interface face, carries Arabic + Latin |
-| `uploads/DESIGN (1).md` — "Morflax — Style Reference" | ✅ used as **visual mood** (per brief) | Source of: dark bar over light canvas, pill buttons, 24px card radius, wide-blur shadows, +0.05em eyebrow labels, radial hero wash, "one accent, rationed" discipline |
-| `uploads/DESIGN.md` — "shadcn/ui — Style Reference" | ⚠️ **not applied** | Describes shadcn/ui, a different product. The brief chose Morflax as the mood; this file is retained for reference only |
-| **Figma — `TrendSy-App`** | ❌ **NOT READ** | `https://www.figma.com/design/H3r9xXkxkEd6xtYXJsVFuc/TrendSy-App?node-id=28-3446` — no Figma access was available in this project. **No screen in this system is a recreation of that file.** Every layout is inferred from the brand sheet + mood reference and needs your review |
-| Product / lifestyle photography | ❌ none supplied | All product visuals render `ProductMedia`'s labelled placeholder. See "Imagery" |
-| Icon set | ❌ none supplied | Lucide is a **flagged substitution**. See "Iconography" |
+| Source | Role |
+|---|---|
+| `trendsy-uxui-master-plan.md` v1.1 | **The spec.** IA, screen inventories (mobile §7, web §8), token architecture §9, decisions §13 |
+| `trendsy-visual-direction.md` | The visual cross; supersedes older mood sections. Token deltas §3 |
+| `trend-design-system-gap-list.md` | Work order that turned the original Trend DS into Trendsy's |
+| `design-handoff-data.md` | What the buyer API **actually** returns — every component prop is bound to a DTO here |
+| `trendsy-web-flowchart.md`, `trendsy-ux-research-synthesis_1.md` | Flow and evidence |
+| Brand sheet, logo SVG, Madani Arabic + IBM Plex Sans Arabic TTFs | Assets (`assets/`) |
+| GitHub `Abdulrahman-zazo/uiux-master-guideline` | Where the above live; see `github.md` |
 
-> **The most important caveat:** the UI kits are brand-accurate but they are **our layouts**, not TrendSy's. If you can export the Figma screens as PNGs or share the app's code, the kits can be corrected to match.
+The Figma file `TrendSy-App` was never readable. **Every kit layout is ours, not a recreation.** Master plan §13 asks whether existing code for `/`, `/c`, `/p`, `/cart`, `/login` should be matched or replaced.
 
 ---
 
 ## CONTENT FUNDAMENTALS
 
-### Voice
+**Arabic is the language, not a translation.** Every string is written in Arabic first; English is verified after.
 
-Trend speaks like a well-informed shop assistant, not a marketing department. Plain, warm, specific. It never shouts and it never uses hype adjectives ("amazing", "revolutionary", "game-changing").
+**Voice (decision R7): neutral.** Verbal nouns and masculine-neutral imperatives — never the feminine second person.
+- ✅ **أضف إلى السلة** · **إتمام الطلب** · **تأكيد الطلب** · **تصفّح الأسواق** · **ابدأ التسوق**
+- ❌ أضيفي · تسوّقي · ابدئي
 
-**Person.** Address the shopper directly as **you**; the brand refers to itself as **we**.
+**Cart is السلة**, never الحقيبة. Shop is **المحل**, market is **السوق**, and buyers never see the word "merchant".
 
-- ✅ "We've emailed your receipt." · "Saved items are waiting in your wishlist."
-- ❌ "The customer's receipt has been dispatched." · "Trend has emailed you a receipt."
+**Trust copy is factual and specific.** "سنتصل بك لتأكيد الطلب قبل التجهيز" · "استبدال فوري للمقاس أو اللون" · "الدفع نقداً عند الاستلام" · "رسوم التوصيل تُحسب في الخطوة التالية". No adjectives, no exclamation marks, no urgency theatre.
 
-In Arabic, the shopper is addressed in the **feminine second person** on shopper surfaces (the primary audience is womenswear), and neutrally on seller/admin surfaces:
+**Exchange, not return.** Buyers want the right item (research F10): "استبدال" on every trust surface.
 
-- ✅ shopper: **تسوّقي الجديد** · **أضيفي إلى الحقيبة** · **ابدئي التسوق**
-- ✅ seller: **إضافة منتج** · **حفظ كمسودة** (verbal noun, no gender)
+**Casing.** English is sentence case everywhere. The eyebrow is uppercase +0.05em in Latin; Arabic eyebrows keep size and weight and drop both tracking and transform.
 
-### Casing
+**Numbers and money (R6).** Digits are **Latin 0–9, tabular**, in both languages, matching the backend `display` string. Money is `{ amountMinor, currency, display }` and is rendered **verbatim** by `Money` — no client formatting, no arithmetic. Symbol trails at 62%: **ل.س** (ar) / **SYP** (en). Phone numbers, order numbers and prices sit in `<bdi dir="ltr">`.
 
-**Sentence case everywhere** — headings, buttons, labels, table headers. Title Case is never used.
+**Status labels come from the server** (`statusLabel`, event `label`); the UI never invents them. Unknown statuses render neutral with the raw string.
 
-- ✅ "Add to bag" · "New this week" · "Order summary" · "Free 30-day returns"
-- ❌ "Add To Bag" · "Order Summary"
-
-The one exception is the **eyebrow label**: 12px, weight 500, `letter-spacing: .05em`, `text-transform: uppercase` — "NEW THIS WEEK", "EDITOR'S PICK". Arabic eyebrows keep the tracking and drop the transform (Arabic has no case).
-
-### Length
-
-- Button labels: **1–3 words.** "Add to bag", "Place order", "Start selling".
-- Alert titles: one clause, no full stop. "Payment declined", "Only 3 left".
-- Alert bodies and hints: one sentence, with a full stop. "We'll send order updates here."
-- Toasts: under 60 characters. Anything longer is an `Alert`.
-- Empty states: a title plus **one** line of copy plus **one** action. Never two ways out.
-
-### Numbers and money
-
-Prices always run through `PriceBlock`: tabular figures, currency code at 62% of the price size. **SAR** in English, **ر.س** in Arabic. Arabic surfaces use **Arabic-Indic numerals** (١٧٤, ٤١٢) via `Intl.NumberFormat('ar-SA')` — never Western digits in an Arabic sentence.
-
-### Emoji
-
-**Never.** Not in UI, not in copy, not in empty states, not as icons. Every glyph in Trend is a Lucide icon.
-
-### The vibe
-
-Quiet confidence. A porcelain-white room with one purple light on. The copy assumes the shopper is in a hurry and knows what she wants; it tells her the thing that changes her decision (2–4 days, only 3 left, free over 300) and gets out of the way.
-
-**Specific examples from the kits:**
-
-- Hero: "Shop the trend, not the season" / "تسوّقي الترند لا الموسم"
-- Hero body: "Curated pieces from 400+ regional ateliers, delivered across the Gulf in 2–4 days."
-- Editorial statement: "We work with small ateliers across Riyadh, Jeddah and Dubai — every piece is made in limited runs."
-- Stock: "Only 3 left" — never "Hurry! Almost gone!!"
-- Seller pitch: "Open your store in under 24 hours. 12% commission, no monthly fee, weekly payouts." Facts, in order, no adjectives.
+**Emoji: never.** Unicode as icon: never (the ⌘K keycap and the … ellipsis are the only glyph exceptions, and the keycap hides under 768px).
 
 ---
 
 ## VISUAL FOUNDATIONS
 
 ### Colour
+Purple ramp 50–900 anchored on the brand sheet (`#6D1B72` = 700, primary fill; `#864596` = 600; `#984399` from the logo = 500). Thirteen warm neutrals `#FFFFFF → #090909`. Functional hues **approved** (master plan §9.2): success `#2F7D5B`, warning `#9A6410`, danger `#B3261E`, low-chroma.
 
-- **One chromatic hue.** A ten-step purple ramp (`--purple-50` → `--purple-900`) anchored on the brand sheet: `#6D1B72` is `--purple-700` (the primary fill), `#864596` is `--purple-600`, `#984399` (from the logo) is `--purple-500`.
-- **Warm neutrals**, thirteen steps, `#FFFFFF` → `#090909`. The greys have a faint warm cast so they sit with the purple rather than fighting it. `#090909` from the sheet is `--neutral-950`.
-- **Three functional hues — proposed, awaiting your approval.** `--success-600 #2F7D5B`, `--warning-600 #9A6410`, `--danger-600 #B3261E`, each with a 50-tint. The brand sheet has none, and an eCommerce platform cannot express "out of stock", "payment declined" and "delivered" without them. They are deliberately low-chroma so purple stays the loudest colour on any screen. **If you reject them, the alternative is status-by-icon-and-label only, and I'll rebuild `StockStatus`, `StatusPill` and `Alert` accordingly.**
-- **Content on the wash** uses `--text-on-wash` / `--text-on-wash-soft` / `--border-on-wash`, never a hardcoded purple — the wash itself inverts in dark theme, so a fixed `--purple-900` headline would land on a `#3D0F42` background. Likewise `--surface-inverse` is always paired with `--text-on-inverse`.
-- **Where purple is allowed:** primary button fill, active nav/tab, selected chip/swatch, focus ring, discount price, brand-subtle info panels, rating stars, progress fill, the wash gradients. **Nowhere else** — body text is never purple, card backgrounds are never purple.
+Surface ladder: canvas `neutral-50` → card `neutral-0` → sunken `neutral-100` → **tinted `purple-50`** (`--surface-tinted`: shop card, selected radio card, confirmation-call panel). Inverse `#090909` only for the web header and footer.
+
+Where purple is allowed: primary fill, active nav/tab, selected chip, focus ring, tinted panels, progress fill, timeline's latest dot, the wash behind the web-home search. **Price is `--text-price` = text-primary, never purple.** Discount is `--text-discount` = danger.
+
+Dark theme is defined in `tokens/dark.css` and **not shipped in MVP**.
 
 ### Type
+Madani Arabic for display at **weight 500** (600 only for h1/display); IBM Plex Sans Arabic for everything else including Latin runs. Weights 400/500/600 — **no 700 exists**. Web: 12 / 14 / 16 / 17 / 20 / 24 / 30 / 36. Mobile tier (`[data-density="mobile"]`): 12 / 13 / 15 / 16 / 17 / 20 / 24 / 28. Arabic body line-height ≥ 1.6, headings ≥ 1.35, **no letter-spacing at any size**; Latin display tracks −0.02em max. Numerals `tnum`.
 
-Two faces, strictly divided:
+### Depth
+**Tint steps and 1px hairlines.** `--shadow-sm`, `--shadow-md` and `--shadow-brand` are `none`. Shadows survive only on floating layers: `--shadow-lg` dropdown, `--shadow-xl` sheet / modal / toast. Cards, buttons and inputs cast nothing. Every card keeps its hairline.
 
-- **Madani Arabic** — display only. Page titles, section headings, card titles at 20px+, pull quotes, stat values. 600 weight.
-- **IBM Plex Sans Arabic** — everything else. Body, labels, buttons, table cells, captions, all numerals.
+### Shape
+Pill for every button, badge, avatar, search field, progress track · 12px inputs, tags, alerts · 16px product/media cards · 24px content cards and dialogs · 28px bottom sheets · 6px checkbox tick. Nothing square.
 
-Scale: 12 / 14 / 16 / 20 / 24 / 36 / 48 / 72. Weights 400, 500, 600 — **there is no 700**.
+### Motion
+`ease-out cubic-bezier(.22,1,.36,1)`; 80 / 140 / 220 / 320 / 400ms. **Hover = background tint shift only; press = sunken fill.** No lift, no scale, no spring, no glow. Layout never animates. `prefers-reduced-motion` zeroes everything.
 
-Tracking travels with size: −1.8px at 72, −1.2px at 48, −0.36px at 36, −0.2px at 20, 0 at body, **+0.6px at 12px uppercase**. Nothing outside −0.05em…+0.05em.
+### Layout
+Content 1200px, chrome 1440px; gutters 24 → 16 under 768; section rhythm 80 web / 48 mobile with a **hairline rule, not alternating bands**. Breakpoints 360 / 768 / 1024 / 1280. Sticky: web header (`z 40`, no shadow), checkout summary, mobile add-to-cart bar (canvas bg + top hairline). Modal `z 100`, toast `z 200`.
 
-**Arabic differs deliberately:** drop all negative tracking (it breaks joined letterforms) and raise line-height from 1.43–1.5 to **1.6–1.75** for body, 1.2–1.4 for display. Madani's ascenders need the room.
+**RTL is structural.** Logical properties everywhere; `dir="rtl"` on `<html>` mirrors the whole system. `Icon` mirrors `chevron-*`, `arrow-*`, `undo-2`, `send`; `x`, `check`, `clock`, `phone`, the logo and numbers never mirror.
 
-### Backgrounds
+### Imagery
+Product images **4:5**; market/shop heroes 16:9; avatars 1:1. Real shop photos only, with the **"صُوِّر في المحل"** capsule chip. No illustration, no 3D, no stock, no video (API accepts images only). `ProductMedia` renders a labelled neutral frame until a real `src` arrives — **no image host is reachable from the fixtures, so every kit visual is that frame.** Category tiles are Lucide glyphs on a tinted circle (R3).
 
-No photography anywhere in the chrome. Three background treatments only:
-
-1. **Flat surfaces** — the four-step stack: canvas `#F5F5F4` → card `#FFFFFF` → sunken `#EBEBE9`, plus inverse `#090909` for headers, toasts and footers.
-2. **The brand wash** — `--brand-wash`, a radial gradient `#F0E1F4 → #C89AD1` centred at 32%/46%. **Hero sections only.** `--brand-wash-deep` (`#864596 → #3D0F42`) for campaign bands, sale banners and auth side panels.
-3. **Nothing else.** No repeating patterns, no textures, no grain, no noise overlays, no hand-drawn illustration. There are exactly two gradients in the system and both are brand washes.
-
-### Animation
-
-Short, eased, no bounce. `--ease-out: cubic-bezier(.22,1,.36,1)` for everything; `--ease-entrance: cubic-bezier(.16,1,.3,1)` for arriving elements. Durations: 80ms colour-only, **140ms controls** (hover/press/focus), 220ms card lift and tab switch, 320ms progress fill, 400ms bottom sheet.
-
-What moves: colour, opacity, shadow, a 2px card lift, a toggle knob, a sheet sliding up, a 4-percent button press. What never moves: layout, page transitions, anything spring-loaded or overshooting. `prefers-reduced-motion` zeroes every duration.
-
-### Hover states
-
-- **Primary button:** fill deepens 700 → 800 **and** gains `--shadow-brand` (a purple-tinted glow). The only purple shadow in the system.
-- **Secondary / ghost:** background fills with `--surface-sunken` (secondary) or `--surface-brand-subtle` (ghost). Borders never change colour on hover.
-- **Cards:** `translateY(-2px)` + `--shadow-sm` → `--shadow-lg`, over 220ms. Interactive cards only.
-- **Table rows:** background → `--surface-canvas`. No border, no shadow.
-- **Links:** colour 700 → 900 plus an underline at 2px offset.
-- Never opacity-based hover. Never a scale-up on hover.
-
-### Press states
-
-Controls **shrink to `scale(.97)`** over 140ms. No colour change beyond the hover state, no inset shadow, no ripple.
-
-### Borders
-
-One hairline weight: **1px**, `--border-hairline #DCDCD8`. `--border-strong #C2C2BD` only for unfilled control outlines (checkbox, radio, empty stars). `--border-brand` for a selected swatch ring (1.5px) and the 2px active-tab rule.
-
-**Every card keeps its hairline border.** The shadow alone does not define a Trend card edge — this is the rule most often broken.
-
-### Shadows
-
-Five neutral steps plus one brand glow — all wide-blur and low-opacity, none coloured except `--shadow-brand`:
-
-| Token | Use |
-| --- | --- |
-| `--shadow-sm` | resting card |
-| `--shadow-md` | primary button, dropdown |
-| `--shadow-lg` | card hover |
-| `--shadow-xl` | modal, toast, featured pricing card |
-| `--shadow-brand` | primary button **hover only** |
-
-No inner shadows anywhere. Inputs use a fill change and a focus ring, never an inset.
-
-### Protection: capsules, not gradients
-
-Controls over imagery use **opaque white capsules** — always the token pair `--surface-capsule` (`rgba(255,255,255,.92)`, pill, no border) with `--icon-on-capsule` (`--neutral-800`) as the glyph colour — or the translucent `IconButton variant="inverse"`. **Both capsule tokens are identical in light and dark theme on purpose:** the capsule sits on a photograph, not on a themed surface, so a theme-aware glyph colour like `--icon-default` would fade to near-invisible on dark. A wishlisted heart is the one permitted override, switching to `--purple-700`. Trend does **not** use protection gradients (scrim overlays) over images — because there are no images yet, and because the capsule reads cleaner on a 3∶4 product crop.
-
-### Transparency and blur
-
-Used in exactly three places: the modal scrim (`--surface-overlay` `rgba(9,9,9,.56)` + `backdrop-filter: blur(6px)`), the translucent inverse `IconButton` on imagery, and `--surface-brand-subtle` in dark theme (`rgba(152,67,153,.16)`). Nowhere else — no frosted cards, no glass nav.
-
-### Corner radii
-
-Nothing is square. `6px` checkbox tick · `8px` tooltip/keycap · `12px` tags, inputs, alerts · `16px` media cards · `24px` cards and modals · `28px` mobile sheets · `9999px` **every button, badge, avatar, progress track and search field**.
-
-### What a card looks like
-
-`background: var(--surface-card)` · `border: 1px solid var(--border-hairline)` · `border-radius: 24px` · `box-shadow: var(--shadow-sm)` · `padding: 24px`. Media cards drop to 16px radius and zero padding. Interactive cards add the hover lift.
-
-### Layout rules
-
-Content column **1200px**, chrome (header bars, dashboards) **1440px**, gutters 24px → 16px under 768px. Section rhythm **80px** → 48px under 768px.
-
-**Fixed / sticky elements:** the storefront `TopNav` is sticky at `top: 0` with `z-index: 40` and **no shadow** — it sits flush against the hero. The checkout order summary is sticky at `top: 24px`. The mobile `BottomNav` and the mobile PDP's add-to-bag bar are pinned to the device bottom. Modals sit at `z-index: 100`, toasts at 200.
-
-**RTL is structural, not a stylesheet.** Every component uses logical properties — `padding-inline`, `margin-inline-start`, `inset-inline-end`, `border-inline-end`, `text-align: start/end`. Setting `dir="rtl"` on `<html>` mirrors the entire system with no RTL-specific CSS.
-
-### Colour vibe of imagery
-
-Undetermined — **no imagery was supplied.** The recommendation, given the palette: cool-neutral photography with a faint plum cast in the shadows, on bone or white backgrounds, no warm filter and no grain. This is a suggestion awaiting your direction, not a rule.
-
-### Dark theme
-
-`[data-theme="dark"]` on `<html>` or any subtree. Canvas `#090909`, card `#141413`, raised `#262523`, hairline `#2E2D2A`. **Purple lightens:** the brand fill moves 700 → 600 and brand *text* moves to `--purple-300 #C89AD1`, because `#6D1B72` is unreadable on near-black. Shadows deepen to near-opaque black. Toasts stay dark in both themes.
+### States
+Every screen designs loading (text first, blurred thumb), empty, error (`ErrorState` with copyable traceId), offline (`Alert tone="offline" banner`, non-blocking), processing (locked primary with `processingLabel`), 404, 429 (`RateLimitTimer`), unknown-enum (neutral `StatusPill`).
 
 ---
 
 ## ICONOGRAPHY
+**Lucide 0.469** via `Icon` — the flagged substitution is now **adopted** (master plan §9.6). Loaded from unpkg (`https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js`; cdnjs does not mirror the UMD build). Stroke 1.75; 2 at ≤16px. Sizes 16 inline · 20 default · 24 nav · 28 empty-state circle. Colour by `currentColor`. Directional glyphs mirror in RTL through the wrapper. No duotone; active nav = colour + 2px rule.
 
-**The sources contained no icon set** — no icon font, no SVG sprite, no PNG glyphs. **Lucide is a flagged substitution**, loaded from CDN:
-
-```html
-<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-```
-
-It was chosen because its geometric, uniform-stroke construction matches the wordmark's clean geometry and the mood reference's thin-stroke UI marks. **If Trend owns an icon set, send it and `Icon.jsx` swaps over in one file.**
-
-### Rules
-
-- **Every glyph goes through `<Icon name="…" />`.** Never hand-write an SVG path in Trend UI, never approximate an icon with a Unicode character, never use an emoji as an icon.
-- Sizes: **16px** inline with body text, **20px** default, **22–24px** in nav bars and bottom nav, **26–28px** in empty-state circles.
-- Stroke weight **1.75** default; 2 at 16px and below (thin strokes disappear); 1.5 for large decorative glyphs.
-- Colour by `currentColor` from the parent, using `--icon-default` (`#3F3D39`), `--icon-muted` (`#9E9E98`), `--icon-brand` (`#6D1B72`) or `--icon-on-brand`.
-- Icons are **functional cues, never decoration.** An icon that doesn't clarify an action or a state should be removed.
-- **Unicode characters** appear in exactly two places: the `…` ellipsis in `Pagination`, and the `⌘K` keycap hint in `SearchField`. Nowhere else.
-- **Emoji: never.**
-
-### Glyphs the system actually uses
-
-Commerce: `shopping-bag`, `shopping-cart`, `heart`, `star`, `truck`, `package`, `package-search`, `package-x`, `store`, `shirt`, `wallet`, `credit-card`, `undo-2`, `crown`, `image`, `image-plus`. Navigation: `chevron-left/right/down`, `chevrons-up-down`, `arrow-right`, `arrow-up-down`, `house`, `layout-grid`, `layout-dashboard`, `list`, `search`, `sliders-horizontal`, `ellipsis`, `x`. State: `check`, `circle-check`, `circle`, `circle-alert`, `circle-x`, `circle-help`, `triangle-alert`, `info`, `clock`, `flag`, `shield-check`, `lock`, `loader-circle`, `minus`, `plus`, `slash`. Account & ops: `user`, `users`, `bell`, `settings`, `mail`, `phone`, `map-pin`, `eye`, `share-2`, `download`, `upload`, `printer`, `trash-2`, `square-pen`, `megaphone`, `chart-line`, `trending-up`, `trending-down`, `filter`, `moon`, `sun`, `signal`, `wifi`, `battery-full`.
-
-### Known substitution to replace
-
-The marketing kit's social sign-in uses Lucide's `apple` and `chrome` glyphs as stand-ins. **Real Apple and Google brand marks were not supplied and must not be drawn from memory** — drop in the official assets before shipping.
+Glyphs used: `search shopping-cart store package user house map-pin phone phone-call banknote refresh-cw truck receipt package-check check x circle-alert triangle-alert info wifi wifi-off clock hourglass copy rotate-cw chevron-left chevron-right arrow-left arrow-up-down sliders-horizontal plus minus trash-2 pencil share-2 bell languages smartphone file-text log-out award star image scissors lamp gift cake shirt building-2 route camera loader-circle search-x package-x construction`.
 
 ---
 
-## Imagery
+## Components (56)
 
-**No product, lifestyle or brand photography was supplied, and none has been invented.** `ProductMedia` renders a neutral tinted frame with an "PRODUCT IMAGE" label and a `image` glyph. Pass a real `src` and it fills in with zero code change.
+**core/** Icon · Logo · Button · IconButton · Badge · Tag · Card · Avatar · Eyebrow · Divider · Skeleton
+**forms/** FormField · Input · Textarea · Select · Checkbox · Radio · Switch · SearchField · QuantityStepper · **GeoSelect** · **OTPField** · **RadioCard** · **ReasonPicker**
+**commerce/** **Money** · ProductCard · ProductMedia · PriceBlock · RatingStars · OptionPicker · StockStatus · CartLine · OrderSummary · **ShopCard** · **TrustStrip**
+**navigation/** TopNav · SidebarNav · BottomNav · Breadcrumb · Tabs · SectionHeader · **LoadMore**
+**feedback/** Alert · Toast · Modal · Tooltip · ProgressBar · EmptyState · **ErrorState** · **RateLimitTimer**
+**data/** StatCard · StatusPill · DataTable · **Timeline** · **OrderCard** · **AddressCard**
 
-Ratios: **3∶4** apparel (default) · **1∶1** beauty and accessories · **16∶9** editorial.
+Bold = new for Trendsy. **Removed:** Pagination (page numbers forbidden), all client money formatting. **Console-only (not MVP):** StatCard, DataTable. **Placeholder until Slice 3:** RatingStars. **Legacy, prefer Money:** PriceBlock.
 
-Do not substitute stock or generated imagery into these frames.
-
----
-
-## Intentional additions
-
-Nothing in this project defined a component inventory, so the component set was authored from scratch, sized to what an eCommerce marketplace needs. Two entries deserve a note:
-
-- **`Icon`** — a wrapper over the substituted Lucide set, so the whole system can be re-pointed at Trend's real icons by editing one file.
-- **`ProductMedia`** — an honest photography placeholder, added because no imagery was supplied. It exists so no screen silently fakes a product shot.
-- **Functional hues** (`--success-*`, `--warning-*`, `--danger-*`) — see Colour above. **These are the one place I extended the palette beyond your three colours, and they need your sign-off.**
+Each has `.d.ts` (props bound to the API DTO where one exists) and `.prompt.md`.
 
 ---
+
+## UI kits
+| Kit | Status | Contents |
+|---|---|---|
+| `ui_kits/mobile_app/` | **MVP** | Screens A–F (24) + sheets, 390×844, 16 devices staged |
+| `ui_kits/storefront/` | **MVP** | 19 web routes with route jumper |
+| `ui_kits/shared/` | — | Fixture mirroring the API (13 markets, 2 real + 10 design-only products, 4 orders with event logs), neutral AR copy, locale/theme/offline shell |
+| `ui_kits/marketing_auth/` | Deferred | `/join` placeholder |
+| `ui_kits/seller_dashboard/`, `ui_kits/admin_panel/` | Parked | Console shell reference; pre-Trendsy fixture via compat shim |
 
 ## Index
-
-### Root
-
-| File | What it is |
-| --- | --- |
-| `styles.css` | **The single entry point** consumers link. `@import` lines only |
-| `readme.md` | This document |
-| `SKILL.md` | Agent-Skills front-matter for use in Claude Code |
-| `thumbnail.html` | Homepage tile |
-
-### `tokens/`
-
-`fonts.css` (@font-face) · `colors.css` (ramps + semantic aliases) · `dark.css` (`[data-theme="dark"]`) · `typography.css` · `spacing.css` · `radii.css` · `elevation.css` · `motion.css` · `layout.css` · `base.css` (reset + link colours)
-
-### `assets/`
-
-`logo-trend.svg` (primary lockup) · `logo-trend-on-dark.svg` (white letterforms) · `logo-mark.svg` (sphere only) · `brand-sheet.png` (the supplied reference) · `fonts/` (6 TTFs)
-
-### `components/` — 44 components
-
-**`core/`** — `Icon`, `Logo`, `Button`, `IconButton`, `Badge`, `Tag`, `Card`, `Avatar`, `Eyebrow`, `Divider`, `Skeleton` (+ `keyframes.css`)
-
-**`forms/`** — `FormField`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `SearchField`, `QuantityStepper`
-
-**`commerce/`** — `ProductCard`, `ProductMedia`, `PriceBlock`, `RatingStars`, `OptionPicker`, `StockStatus`, `CartLine`, `OrderSummary`
-
-**`navigation/`** — `TopNav`, `SidebarNav`, `BottomNav`, `Breadcrumb`, `Tabs`, `Pagination`, `SectionHeader`
-
-**`feedback/`** — `Alert`, `Toast`, `Modal`, `Tooltip`, `ProgressBar`, `EmptyState`
-
-**`data/`** — `StatCard`, `StatusPill`, `DataTable`
-
-Each has a sibling `.d.ts` (props contract) and `.prompt.md` (what & when, usage example, variants). Each directory has one `@dsCard` HTML showing its states.
-
-### `ui_kits/` — 5 products
-
-| Kit | Screens |
-| --- | --- |
-| `storefront/` | Home · Category/PLP · Product detail · Bag · 3-step Checkout · Order confirmation |
-| `mobile_app/` | Home · Search + filter sheet · Product · Bag · Account (4 devices on one stage) |
-| `seller_dashboard/` | Overview · Orders · Catalogue · Product editor |
-| `admin_panel/` | Platform overview · Sellers · Moderation queue · Customers |
-| `marketing_auth/` | Sell-with-us landing · Sign in · Sign up · Seller onboarding |
-| `shared/` | `kit-utils.jsx` — bilingual fixture, EN/AR copy tables, locale + theme shell, `KitControls` |
-
-Every kit's `index.html` opens standalone and carries a working **ع / EN** and **light / dark** toggle. Each has its own README listing what works and what is deliberately unbuilt.
-
-### `guidelines/` — 24 specimen cards
-
-Brand (4): logo light, logo dark, misuse, imagery policy. Colors (9): purple ramp, brand anchors, neutral ramp, functional hues, text colours, surfaces light, surfaces dark, borders & focus, brand wash. Type (6): display Latin, display Arabic, body Latin, body Arabic, eyebrow, numerals & price. Spacing (5): spacing scale, radii, elevation, layout frame, motion.
+`styles.css` (entry) · `tokens/` (fonts, colors, dark, typography, spacing, radii, elevation, motion, layout, base) · `assets/` (logo ×3, fonts ×6, brand sheet) · `components/` · `guidelines/` (24 specimen cards) · `ui_kits/` · `PLAN.md` (rebuild plan) · `github.md` · `SKILL.md` · `thumbnail.html` · the six copied spec documents at the root.

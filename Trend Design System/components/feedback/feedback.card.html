@@ -1,34 +1,28 @@
-<!-- @dsCard group="Components" viewport="700x360" name="Feedback" subtitle="Alerts, toast, progress, tooltip, empty state" -->
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<!-- @dsCard group="Components" viewport="700x420" name="Feedback" subtitle="Alerts incl. offline banner, toast, error state, timers, empty" -->
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script src="../../_ds_bundle.js"></script>
-<style>body{margin:0;padding:28px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}.lbl{font:500 10px/1.4 var(--font-ui);letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}</style>
-</head><body><div id="root"></div>
-<script type="text/babel">
-const { Alert, Toast, ProgressBar, Tooltip, EmptyState, Modal, Button, IconButton } = window.TrendDesignSystem_7e8edd;
-function Demo(){
-const [open,setOpen]=React.useState(false);
-return(<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18,alignItems:'start'}}>
-<div className="col" style={{gap:10}}>
-<Alert tone="info" title="Ships from Riyadh">Delivery in 2–4 working days.</Alert>
-<Alert tone="success" title="Order placed">We've emailed your receipt.</Alert>
-<Alert tone="warning" title="Only 3 left" onDismiss={()=>{}}/>
-<Alert tone="danger" title="Payment declined" action={<Button size="sm" variant="secondary">Try another card</Button>}/>
+<style>body{margin:0;padding:24px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { Alert, Toast, ErrorState, RateLimitTimer, ProgressBar, EmptyState, Modal, Button, Tooltip, IconButton } = window.TrendDesignSystem_7e8edd;
+function Demo(){const [o,setO]=React.useState(false);
+return(<div className="col" style={{gap:14}}>
+<Alert tone="offline" banner title="لا يوجد اتصال — سلتك محفوظة" style={{margin:'-24px -24px 0'}}/>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+<Alert tone="info" title="سنتصل بك لتأكيد الطلب">قبل التجهيز، خلال ساعات العمل.</Alert>
+<Alert tone="success" title="تم استلام طلبك"/>
+<Alert tone="warning" title="هذا المحل غير متاح حالياً"/>
+<Alert tone="danger" title="انتهت صلاحية الرمز" action={<Button size="sm" variant="outline">إعادة الإرسال</Button>}/>
 </div>
-<div className="col" style={{gap:14}}>
-<Toast tone="success" message="Added to your bag" onDismiss={()=>{}}/>
-<ProgressBar value={72} label="Free shipping progress" showValue/>
-<ProgressBar value={4} max={5} size="sm" tone="brand"/>
-<div className="row" style={{gap:14}}>
-<Tooltip label="Export as CSV"><IconButton icon="download" label="Export"/></Tooltip>
-<Button variant="secondary" size="sm" onClick={()=>setOpen(true)}>Open modal</Button>
+<div className="row" style={{gap:14}}><Toast tone="success" message="أُضيف إلى السلة" onDismiss={()=>{}}/><RateLimitTimer seconds={287} label="ينتهي الرمز خلال"/><RateLimitTimer seconds={42} label="إعادة الإرسال بعد" compact/><Tooltip label="مشاركة"><IconButton icon="share-2" label="مشاركة"/></Tooltip><Button variant="outline" size="sm" onClick={()=>setO(true)}>حوار</Button></div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+<ErrorState compact problem={{title:'حدث خطأ ما',detail:'تعذّر تحميل هذا الطلب.',traceId:'01J8ZK3V9Q2M'}} onRetry={()=>{}}/>
+<EmptyState compact icon="shopping-cart" title="سلتك فارغة" action={<Button size="sm">تصفّح الأسواق</Button>}/>
 </div>
-<EmptyState compact icon="shopping-bag" title="Your bag is empty" description="Saved items wait in your wishlist." action={<Button size="sm">Start shopping</Button>}/>
-</div>
-<Modal open={open} title="Remove this item?" description="You can add it back from your wishlist." onClose={()=>setOpen(false)} footer={<><Button variant="secondary" onClick={()=>setOpen(false)}>Keep it</Button><Button variant="danger">Remove</Button></>}/>
+<Modal open={o} title="إلغاء الطلب؟" description="لا يمكن التراجع." onClose={()=>setO(false)} footer={<><Button variant="ghost" onClick={()=>setO(false)}>رجوع</Button><Button variant="danger" onClick={()=>setO(false)}>إلغاء الطلب</Button></>}/>
 </div>)}
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
 </script></body></html>

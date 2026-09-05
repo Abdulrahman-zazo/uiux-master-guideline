@@ -1,9 +1,10 @@
-The cart/checkout totals card. Computes the total itself from the parts you pass.
+Totals card. Every number is a server Money object; nothing is summed on the client.
 
 ```jsx
-<OrderSummary subtotal={612} shipping={0} discount={75} tax={80.55} freeShippingAt={300}>
-  <Button variant="primary" size="lg" fullWidth iconEnd="arrow-right">Checkout</Button>
-</OrderSummary>
+// Cart — no fee yet, no grand total
+<OrderSummary itemsSubtotal={cart.itemsSubtotal}><Button fullWidth size="lg">إتمام الطلب</Button></OrderSummary>
+// Review — from CheckoutResponseDto
+<OrderSummary itemsSubtotal={c.itemsSubtotal} deliveryFee={c.deliveryFee} discount={c.discount} grandTotal={c.grandTotal} stores={c.orders} showCallNote />
 ```
 
-Total is `subtotal + shipping + tax − discount`. Never pass `total`.
+The delivery-fee row has an explicit **absent** state; the confirmation-call panel is mandatory on review.

@@ -1,5 +1,7 @@
-/* Type — Madani Arabic for display, IBM Plex Sans Arabic for interface.
-   Both faces carry Arabic and Latin, so a single stack serves AR and EN. */
+/* Type — Madani Arabic for display, IBM Plex Sans Arabic for interface + Latin.
+   Weights 400/500/600 only — no 700 exists. Display sits at 500; 600 is reserved
+   for h1 and the display size. Digits are Latin, tabular, matching the backend
+   `display` string. Source: master plan §9.3, visual direction §3. */
 :root{
   --font-display:"Madani Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;
   --font-ui:"IBM Plex Sans Arabic","Madani Arabic",system-ui,sans-serif;
@@ -8,22 +10,57 @@
   --weight-regular:400;
   --weight-medium:500;
   --weight-semibold:600;
+  --weight-display:500;
+  --weight-h1:600;
 
-  /* Scale — sizes, line-heights and tracking travel together */
-  --text-caption:12px;      --leading-caption:1.4;      --tracking-caption:.6px;
-  --text-body-sm:14px;      --leading-body-sm:1.43;     --tracking-body-sm:0;
-  --text-body:16px;         --leading-body:1.5;         --tracking-body:0;
-  --text-subheading:20px;   --leading-subheading:1.4;   --tracking-subheading:-.2px;
-  --text-heading-sm:24px;   --leading-heading-sm:1.33;  --tracking-heading-sm:-.24px;
-  --text-heading:36px;      --leading-heading:1.11;     --tracking-heading:-.36px;
-  --text-heading-lg:48px;   --leading-heading-lg:1.11;  --tracking-heading-lg:-1.2px;
-  --text-display:72px;      --leading-display:1;        --tracking-display:-1.8px;
+  /* Web scale (px) — master plan §9.3 */
+  --text-caption:12px;      --leading-caption:1.4;
+  --text-body-sm:14px;      --leading-body-sm:1.6;
+  --text-body:16px;         --leading-body:1.6;
+  --text-body-lg:17px;      --leading-body-lg:1.6;
+  --text-h3:20px;           --leading-h3:1.4;
+  --text-h2:24px;           --leading-h2:1.35;
+  --text-h1:30px;           --leading-h1:1.35;
+  --text-display:36px;      --leading-display:1.3;
 
-  /* Eyebrow — the wide-tracked category marker */
+  /* Legacy aliases kept so existing components resolve */
+  --text-subheading:var(--text-h3);   --leading-subheading:var(--leading-h3);
+  --text-heading-sm:var(--text-h2);   --leading-heading-sm:var(--leading-h2);
+  --text-heading:var(--text-h1);      --leading-heading:var(--leading-h1);
+  --text-heading-lg:var(--text-display); --leading-heading-lg:var(--leading-display);
+  --text-heading-fluid:var(--text-h1);
+  --text-heading-lg-fluid:var(--text-display);
+  --text-display-fluid:var(--text-display);
+
+  /* Tracking — Latin only. [lang=ar] zeroes every negative value. */
+  --tracking-display:-0.02em;
+  --tracking-heading:-0.01em;
+  --tracking-heading-lg:-0.02em;
+  --tracking-heading-sm:-0.01em;
+  --tracking-subheading:0;
+  --tracking-body:0;
+  --tracking-body-sm:0;
+  --tracking-caption:0;
   --tracking-eyebrow:.05em;
 
-  /* Fluid display sizes for responsive layouts */
-  --text-display-fluid:clamp(40px,7vw,72px);
-  --text-heading-lg-fluid:clamp(32px,5vw,48px);
-  --text-heading-fluid:clamp(26px,3.4vw,36px);
+  /* Numerals */
+  --numeric-features:"tnum" 1; /* @kind other */
+}
+
+/* Arabic: no letter-spacing at any size, looser leading. */
+[lang="ar"], [lang="ar"] *{
+  --tracking-display:0; --tracking-heading:0; --tracking-heading-lg:0; --tracking-heading-sm:0; --tracking-eyebrow:0;
+  --leading-body:1.7; --leading-body-sm:1.6; --leading-body-lg:1.7;
+}
+
+/* Mobile tier (Flutter sp mirrored) — apply [data-density="mobile"] on the device root. */
+[data-density="mobile"]{
+  --text-caption:12px;
+  --text-body-sm:13px;
+  --text-body:15px;
+  --text-body-lg:16px;
+  --text-h3:17px;
+  --text-h2:20px;
+  --text-h1:24px;
+  --text-display:28px;
 }

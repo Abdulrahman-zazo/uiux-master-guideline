@@ -8,7 +8,7 @@ export function PriceBlock({ amount, compareAt, currency = 'SAR', size = 'md', a
     <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8, justifyContent: align === 'end' ? 'flex-end' : 'flex-start', flexWrap: 'wrap', ...style }}>
       <span style={{
         fontFamily: 'var(--font-numeric)', fontSize: S, fontWeight: 'var(--weight-semibold)',
-        letterSpacing: S >= 24 ? '-.02em' : '0', color: off ? 'var(--text-brand)' : 'var(--text-primary)',
+        letterSpacing: S >= 24 ? '-.02em' : '0', color: 'var(--text-price)',
         fontVariantNumeric: 'tabular-nums', lineHeight: 1.15,
       }}>
         {fmt(amount)}<span style={{ fontSize: Math.round(S * 0.62), fontWeight: 'var(--weight-medium)', marginInlineStart: 4, color: 'var(--text-secondary)' }}>{currency}</span>
@@ -16,7 +16,7 @@ export function PriceBlock({ amount, compareAt, currency = 'SAR', size = 'md', a
       {off > 0 && (
         <span style={{
           fontFamily: 'var(--font-numeric)', fontSize: Math.max(12, Math.round(S * 0.72)),
-          color: 'var(--text-muted)', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums',
+          color: 'var(--text-discount)', textDecoration: 'line-through', fontVariantNumeric: 'tabular-nums',
         }}>{fmt(compareAt)}</span>
       )}
     </span>

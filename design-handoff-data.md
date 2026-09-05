@@ -2,7 +2,9 @@
 
 | Generated from commit | Date | OpenAPI command | Snapshot read |
 |---|---|---|---|
-| `da92ac878f06b09e90ff00c01dd1af5f107c4d2b` (`da92ac8`, 2026-09-02, working tree clean) | 2026-09-03 | `pnpm openapi:export` = `nest build api && node tools/scripts/openapi.mjs export` (`package.json`) — not re-run for this file; the committed `docs/api/openapi/buyer.json` (v0.0.0) was read directly | `docs/api/openapi/buyer.json` |
+| `cd609f4a1a26ad0b2e2b5f270b96c18c6661f352` (`cd609f4`, 2026-09-03 11:54 UTC, working tree clean apart from this file) | 2026-09-03 (revised after `git pull da92ac8..cd609f4`: batches A6 + A7 — 17 new buyer-facing operations, 37 new schemas, `PaginatedProductCardDto` renamed `ProductListResponseDto`) | `pnpm openapi:export` = `nest build api && node tools/scripts/openapi.mjs export` (`package.json`) — not re-run for this file; the committed `docs/api/openapi/buyer.json` (v0.0.0) was read directly | `docs/api/openapi/buyer.json` |
+
+**What changed since the first edition (commit `da92ac8`).** Every Slice 2/3 buyer-facing row that §0 previously listed as *planned, no handler* now has a `mock-only` handler: search + suggest, per-category form schema / filters / import template, attribute filters and facets on the product list, coupon validation, payment intents (Sham Cash / Paymera), push-device registration, notification preferences, reviews (write, read, report) and the two OAuth sign-in routes (which answer **503** by design). New sections: §2.19–§2.25, §3.9–§3.12, §5.12–§5.16. Rows touched elsewhere are marked **(A6)** or **(A7)**.
 
 Reader: the UI/UX side planning the buyer mobile app and buyer website for Slice 1. Scope: the `public/` and `buyer/` audiences only. Every field name, enum value and seeded string below was read from the source of truth in this order: OpenAPI snapshot → DTO classes and validators → Drizzle schema/migrations → seed and fixture files → enum files → i18n messages. `docs/` is cited only to explain intent, and every place where a document and the code disagree is flagged **DOC≠CODE**. Where a thing does not exist the row says `(not in code)`; where it exists but serves fixture data it says `(stubbed)` with the file path. Paths are repo-relative; the repository has no `src/` root — contexts live under `libs/contexts/<ctx>/src/…` and the platform under `libs/platform/src/…`.
 
@@ -24,11 +26,12 @@ Conventions confirmed against the serializers (details in §2.0):
 | Backing | Endpoints | Evidence |
 |---|---|---|
 | **live** (Postgres/Redis) | `POST public/auth/otp/request`, `otp/verify`, `refresh`; `POST buyer/auth/logout`, `logout-all`; `GET/DELETE buyer/auth/sessions`; `GET public/geo/tree`; `GET public/currencies`; `GET public/ping`; `GET /.well-known/jwks.json`; `GET public/dev/last-otp` (non-production only) | `libs/contexts/identity/src/application/commands/auth.service.ts`; `libs/contexts/geo/src/application/queries/geo-tree.query.ts` → `GeoRepository`; `libs/contexts/ref/src/application/queries/list-currencies.query.ts` → `CurrencyRepository` |
-| **stubbed** (fixture data, real auth, real validation, no persistence) | everything else: me, addresses, markets, i18n messages, media read, categories, products, stores, carts, checkout, orders, reasons, payment methods, pages, slots, pre-registrations, QR, track, merchant applications | each file carries the header `// Endpoint sprint (2026-09-01): mock-only stub — fixture data…`; per-route file paths in §1 |
+| **stubbed** (fixture data, real auth, real validation, no persistence) | everything else: me, addresses, markets, i18n messages, media read, categories (+ form-schema, filters, import-template **A6/A7**), products (+ `attrs`/`facets` **A6**), stores, search + suggest **(A6)**, carts (+ coupon validate **A7**), checkout, orders, reasons, payment methods, payment intents **(A7)**, reviews **(A7)**, devices + notification preferences **(A6)**, pages, slots, pre-registrations, QR, track, merchant applications | each file carries the header `// Endpoint sprint (2026-09-01): mock-only stub — fixture data…` (A6/A7 files say "Mock-only during the endpoint sprint"); per-route file paths in §1 |
+| **refused by design** | `POST public/auth/oauth/google`, `POST public/auth/oauth/apple` — validate the body, then answer **503 `auth.provider_unavailable`** on every call; the 200 `TokenPairDto` in the snapshot documents the future contract only | `libs/contexts/identity/src/presentation/http/public/public-oauth.controller.ts` |
 
-**Live host.** `https://api.trendsy.chato-app.com` (interim shared host, not staging, not production — `STATUS.md` → *Deployed*). It runs commit `46ccf71` (batch A4). The batch A5 additions (`GET buyer/orders/{id}/shipment`, `POST public/merchants/applications`) are in the snapshot but **not on the live host** until the A7 deploy.
+**Live host.** `https://api.trendsy.chato-app.com` (interim shared host, not staging, not production — `STATUS.md` → *Deployed*). Redeployed 2026-09-03 with batch A7 (commit `7bbaeab`); `STATUS.md` records `/docs` at 70 operations matching the committed snapshot, so every route in this file is on the live host. **(A7)**
 
-**OpenAPI.** Generated files: `docs/api/openapi/buyer.json`, `merchant.json`, `admin.json` (v0.0.0, last refreshed 2026-09-02, batch A5). Live documents: `/docs-json`, `/docs/merchant-json`, `/docs/admin-json`; Swagger UI at `/docs`. Gate: `pnpm openapi:diff` (oasdiff). Buyer document: 54 operations, 80 schemas.
+**OpenAPI.** Generated files: `docs/api/openapi/buyer.json`, `merchant.json`, `admin.json` (v0.0.0, last refreshed 2026-09-03, batch A7). Live documents: `/docs-json`, `/docs/merchant-json`, `/docs/admin-json`; Swagger UI at `/docs` (now sent `Cache-Control: no-store`, commit `8dc351e`). Gate: `pnpm openapi:diff` (oasdiff). Buyer document: **70 operations, 113 schemas** (counted from the snapshot; +17 operations and +37 schemas −1 since `da92ac8`). One rename a generated client sees as a type change: `GET public/products` answers `ProductListResponseDto` (= the old `PaginatedProductCardDto` + a required `facets[]`).
 
 **Prism mock.** `pnpm mock` → `node tools/scripts/openapi.mjs mock` (Prism pinned 5.14.2, port 4010, `--cors`); `pnpm mock:dynamic` for schema-generated values. Named problem examples replay with `Prefer: code=<code>`.
 
@@ -42,7 +45,7 @@ Conventions confirmed against the serializers (details in §2.0):
 
 Media base: `MEDIA_PUBLIC_BASE_URL` (`.env.example:115`, `http://localhost:9000/trendsy-media/public` locally, "CDN prefix in production"). Fixture image URLs use the placeholder host `https://cdn.trendsy.example/public/fixtures/…` (§7).
 
-**Missing from code versus `docs/api/endpoints-by-slice.md`.** Every Slice 1 `public/…` and `buyer/…` row has a handler. Slice 2/3 buyer-facing rows still `planned` with no handler: `GET public/categories/{id}/form-schema`, `GET public/categories/{id}/filters`, `GET public/search`, `GET public/search/suggest`, `POST buyer/devices`, `DELETE buyer/devices/{id}`, `GET/PUT buyer/notification-preferences`, `POST buyer/payments/intents`, `GET buyer/payments/intents/{id}`, `POST buyer/reviews`, `GET public/products/{id}/reviews`, `POST public/reviews/{id}/report`, `POST buyer/cart/coupon/validate`. Two Slice 2 rows already exist as stubs: `GET buyer/orders/{id}/shipment`, `POST public/merchants/applications`.
+**Missing from code versus `docs/api/endpoints-by-slice.md`.** **Every** S1–S3 `public/…` and `buyer/…` row now has a handler (Phase A of the endpoint sprint is complete, `STATUS.md` → *Right now*). Nothing buyer-facing is `planned` without code any more; what is still absent is *behaviour*, not routes — see the "stubbed" notes per row in §1 and the `(not in code)` markers in §2–§9.
 
 **Global wire facts** (`libs/platform/src/http/setup/audience.ts`, `configure-http-app.ts`): prefix `/api/v1`, audiences `public|buyer|merchant|admin|webhooks|integrations`; `health/live`, `health/ready`, `metrics`, `.well-known/jwks.json` sit outside the prefix; request body limit 1 MB; every response carries `X-Request-Id` and `X-Api-Version`.
 
@@ -60,6 +63,8 @@ Legend. **Auth**: `guest` = `@RequireAbility` whose permission is in the seeded 
 | `POST /api/v1/public/auth/otp/request` | none; `@RateLimit('otpPhone','otpDevice','otpIp')` | — | `OtpRequestDto` | `OtpRequestResponseDto` (**202**) | `identity.phone_invalid` 422, `auth.otp_cooldown` 429, `validation.failed` | no | no | live | `libs/contexts/identity/src/presentation/http/public/public-auth.controller.ts` |
 | `POST /api/v1/public/auth/otp/verify` | none; `@RateLimit('otpIp')` | — | `OtpVerifyDto` | `TokenPairDto` (200) | `auth.otp_invalid`, `auth.otp_expired` 422, `auth.otp_attempts_exceeded` 429, `auth.account_suspended` 403, `validation.failed` | no | no | live | same |
 | `POST /api/v1/public/auth/refresh` | none; `@RateLimit('public')` | — | `RefreshDto` (or cookie) | `TokenPairDto` (200) | `auth.token_invalid`, `auth.refresh_reused` 401, `auth.account_suspended` 403, `validation.failed` | no | no | live | same |
+| `POST /api/v1/public/auth/oauth/google` **(A7)** | none; `@RateLimit('public')` (`public-oauth.controller.ts:64`) | — | `OAuthSignInDto` `{ idToken, locale?, device? }` | documented `TokenPairDto` (200) — **never served** | **always 503 `auth.provider_unavailable`**; `validation.failed` | no | no | refused by design: body validated and discarded, no provider called, no token, no cookie | `libs/contexts/identity/src/presentation/http/public/public-oauth.controller.ts` |
+| `POST /api/v1/public/auth/oauth/apple` **(A7)** | none; `@RateLimit('public')` (`:89`) | — | `OAuthSignInDto` | documented `TokenPairDto` (200) — never served | always 503 `auth.provider_unavailable` | no | no | same | same |
 | `GET /api/v1/public/dev/last-otp?phone=` | `@Public()`; only registered when `DEV_ENDPOINTS_ENABLED` | `phone` ≤ 20, `^[0-9+()\s-]+$` | — | `{ code }` (200) | 404 `auth.challenge_not_found` when disabled | no | no | live, off on the shared host | `…/public/dev-otp.controller.ts` |
 | `GET /api/v1/public/geo/tree` | guest (`geo:read`) | `lang` | — | `GeoTreeResponseDto` (200) | — | no | **yes** | live | `libs/contexts/geo/src/presentation/http/public/geo.controller.ts` |
 | `GET /api/v1/public/markets` | guest (`markets:read`) | `lang` | — | `MarketListDto` (200) | — | no | yes | stubbed `libs/contexts/geo/src/application/queries/list-markets.query.ts` | `…/public/markets.controller.ts` |
@@ -68,8 +73,15 @@ Legend. **Auth**: `guest` = `@RequireAbility` whose permission is in the seeded 
 | `GET /api/v1/public/i18n/messages?ns=` | guest (`i18n:read`) | `ns` **required** ≤ 64 `^[a-z0-9_]+$`; `lang` | — | `MessagesResponseDto` (200) | `validation.failed` | no | yes | stubbed `libs/contexts/i18n/src/application/queries/get-public-messages.query.ts` | `libs/contexts/i18n/src/presentation/http/public/messages.controller.ts` |
 | `GET /api/v1/public/media/{id}` | guest (`media:read`) | `id` uuid | — | `MediaAssetDto` (200) | `media.asset_not_found` 404, `validation.failed` | no | **no** (status must not be cached) | stubbed `libs/contexts/media/src/domain/media.fixtures.ts` | `libs/contexts/media/src/presentation/http/public/media-public.controller.ts` |
 | `GET /api/v1/public/categories` | guest (`catalog:read`) | `lang` | — | `CategoryTreeResponseDto` (200) | — | no | yes | stubbed `libs/contexts/catalog/src/domain/catalog.fixtures.ts` | `libs/contexts/catalog/src/presentation/http/public/categories.controller.ts` |
-| `GET /api/v1/public/products` | guest | `ProductListQueryDto`: `limit`, `cursor`, `sort`, `categoryId` uuid, `marketId` uuid, `storeId` uuid, `q` ≤ 200, `priceMin`/`priceMax` decimal-string minor units `^\d+$`, `lang` | — | `PaginatedProductCardDto` (200) | `validation.failed` | no | yes | stubbed — only `storeId`/`categoryId` filter; `q`, `marketId`, price band, `sort`, `cursor` validated and ignored; every page is page one (`…/application/queries/list-products.query.ts:54-63`) | `…/public/products.controller.ts` |
-| `GET /api/v1/public/products/{idOrSlug}` | guest | `idOrSlug` ≤ 100 `^[a-zA-Z0-9-]+$`; `lang` | — | `ProductDetailResponseDto` (200) | `catalog.product_not_found` 404, `validation.failed` | no | yes | stubbed | same |
+| `GET /api/v1/public/categories/{id}/form-schema` **(A6)** | guest (`catalog:read`) | `id` uuid (any depth — a subcategory inherits its nearest bound ancestor); `lang` | — | `CategoryFormSchemaResponseDto` (200) | `catalog.category_not_found` 404, `validation.failed` | no | yes | stubbed `libs/contexts/catalog/src/application/queries/catalog-attributes-stub.service.ts` (fixture dictionary, §5.12) — a merchant-form definition; buyer screens only need `/filters` | `libs/contexts/catalog/src/presentation/http/public/categories.controller.ts:52-73` |
+| `GET /api/v1/public/categories/{id}/filters` **(A6)** | guest | `id` uuid; `lang` | — | `CategoryFiltersResponseDto` (200) | `catalog.category_not_found` 404, `validation.failed` | no | yes | stubbed — counts over the fixture catalogue's **subtree**; values with count 0 are omitted | same `:75-96` |
+| `GET /api/v1/public/categories/{id}/import-template` **(A7)** | guest | `id` uuid; `lang` | — | `ImportTemplateDto` (200) | `catalog.category_not_found` 404, `validation.failed` | no | yes | stubbed — a merchant-panel bulk-import descriptor (JSON, not a file); not buyer-facing, listed because it is on the `public` audience | `…/public/import-template.controller.ts` |
+| `GET /api/v1/public/products` **(A6)** | guest | `ProductListQueryDto`: `limit`, `cursor`, `sort`, `categoryId` uuid (**subtree**: a leaf or any ancestor), `marketId` uuid, `storeId` uuid, `q` ≤ 200, `priceMin`/`priceMax` decimal-string minor units `^\d+$`, **`attrs` repeatable `<code>:<optionCode>`** (AND across codes, OR within one code; a comma-joined value is 422), `lang` | — | **`ProductListResponseDto`** (200) = page + `facets[]` (§2.8) | `validation.failed` | no | yes | stubbed — `storeId`, `categoryId` (subtree) and `attrs` filter; `q`, `marketId`, price band, `sort`, `cursor` validated and ignored; every page is page one; facets computed over the whole filtered set, not the page (`…/application/queries/list-products.query.ts`) | `…/public/products.controller.ts` |
+| `GET /api/v1/public/products/{idOrSlug}` | guest | `idOrSlug` ≤ 100 `^[a-zA-Z0-9-]+$`; `lang` | — | `ProductDetailResponseDto` (200) — `attributes[].valueCode` added **(A6)** | `catalog.product_not_found` 404, `validation.failed` | no | yes | stubbed | same |
+| `GET /api/v1/public/products/{id}/reviews` **(A7)** | guest (`reviews:read`) | `id` = product **uuid only** (no slug); `limit`, `cursor`, `sort`, `rating` int 1–5 (exact match), `lang` | — | `PaginatedPublicReviewDto` (200) = page + `summary{}` (§2.25) | `reviews.product_not_found` 404 (also for the draft product), `validation.failed` | no | **no** (no `@Cacheable`) | stubbed `libs/contexts/reviews/src/application/queries/reviews-public-stub.service.ts`: baklava `…0301` → 2 reviews (5★, 3★, average 4); brocade `…0302` → 0 (its only review is `hidden`); `rating` filters honestly, page one always | `libs/contexts/reviews/src/presentation/http/public/product-reviews.controller.ts` |
+| `POST /api/v1/public/reviews/{id}/report` **(A7)** | guest (`reviews:report`); `@RateLimit('prereg')` | `id` review uuid | `ReportReviewDto` `{ reason, note? }` | `ReviewReportReceiptDto` (**202**) | `reviews.not_found` 404 (an already-hidden review 404s identically — never a probe), `validation.failed` | no | no | stubbed (fixture receipt `…0c06`; nothing persists; not audited) | `…/public/review-reports.controller.ts` |
+| `GET /api/v1/public/search` **(A6)** | guest (`catalog:read`) | `q` **required** 1–200; `limit`, `cursor`, `sort`; `categoryId` uuid (ancestry match), `marketId` uuid; `lang` | — | `PaginatedSearchHitDto` (200) | `validation.failed` | no | **no** | stubbed `libs/contexts/search/src/application/queries/search-stub.service.ts` — term match over a fixture term list with Arabic folding (§5.16); بقلاوة/baklava → product 1, قماش/brocade → product 2, else empty; no ranking, page one always | `libs/contexts/search/src/presentation/http/public/search.controller.ts` |
+| `GET /api/v1/public/search/suggest` **(A6)** | guest | `q` required 1–200; `lang` | — | `SuggestionListDto` (200, uncursored) | `validation.failed` | no | no | stubbed — four fixture terms, products before categories | same `:63-80` |
 | `GET /api/v1/public/stores/{idOrSlug}` | guest (`stores:read`) | `idOrSlug` ≤ 100 `^[a-zA-Z0-9-]+$`; `lang` | — | `StoreResponseDto` (200) | `merchants.store_not_found` 404, `validation.failed` | no | yes | stubbed `libs/contexts/merchants/src/domain/merchants.fixtures.ts` | `libs/contexts/merchants/src/presentation/http/public/stores.controller.ts` |
 | `GET /api/v1/public/stores/{id}/products` | guest | `id` **uuid only** (no slug); `limit`, `cursor`, `sort`, `lang`; no filters | — | `PaginatedStoreProductCardDto` (200) | `merchants.store_not_found` 404, `validation.failed` | no | yes | stubbed, page one always | same |
 | `POST /api/v1/public/merchants/applications` | guest (`merchant_applications:create`); `@RateLimit('prereg')` | — | `CreateMerchantApplicationDto` | `MerchantApplicationDto` (**201**) | `validation.failed` | no | no | stubbed (Slice 2 row, not buyer-facing) | `…/public/merchant-applications.controller.ts` |
@@ -109,6 +121,14 @@ Every route: `@ApiBearerAuth()`, `aud` must be `buyer` (a merchant/admin token a
 | `DELETE /api/v1/buyer/cart/items/{itemId}` | `cart:write` | `itemId` uuid | — | `CartDto` (**200**) | `cart.item_not_found`, `validation.failed` | no | stubbed | same |
 | `POST /api/v1/buyer/carts/merge` | `cart:write` + `X-Anonymous-Token` | — | **no body** — the header is the input | `CartDto` (200) | `cart.not_found` 404 | no | stubbed | same |
 | `PUT /api/v1/buyer/cart/coupon` | `cart:write` | — | `SetCouponDto` | `CartDto` (200) | `validation.failed` | no | stubbed (code echoed, totals unchanged) | same |
+| `POST /api/v1/buyer/cart/coupon/validate` **(A7)** | `cart:write` | — | `ValidateCouponDto` `{ code }` | `CouponValidationDto` (**200 even when invalid** — `valid:false` + typed `reason`, §2.21) | `validation.failed` only (a wrong code is never an error) | no | stubbed `libs/contexts/cart/src/application/queries/cart-coupon-stub.service.ts`: `AHLAN10` → valid, 2,050,000 off; `SOUQ25` → `expired` with terms; anything else `unknown_code`; nothing attached to the cart | same `:175-199` |
+| `POST /api/v1/buyer/payments/intents` **(A7)** | `payments:create`; `@Audited` | — | `CreatePaymentIntentDto` `{ orderId, provider, returnUrl? }` | `PaymentIntentDto` (**201**) | `payments.order_not_found` 404, `payments.invalid_transition` 409 (order already paid), the four `idempotency.*`, `validation.failed` | **doc** | stubbed `libs/contexts/payments/src/application/queries/payments-buyer-stub.service.ts`: only TS-000131 `…0604` is payable → intent `…0811` with the requested provider's checkout URL; TS-000124 `…0602` → 409; other ids → 404; nothing persists | `libs/contexts/payments/src/presentation/http/buyer/payments-buyer.controller.ts` |
+| `GET /api/v1/buyer/payments/intents/{id}` **(A7)** | `payments:read:self` | `id` uuid; `lang` | — | `PaymentIntentDto` (200) | `payments.intent_not_found` 404, `validation.failed` | no | stubbed: `…0811` `requires_action` (always `sham_cash`, whatever the create asked for), `…0812` `succeeded` on TS-000124; ownership not filtered | same |
+| `POST /api/v1/buyer/devices` **(A6)** | `notifications:manage:self`; `@Audited` | — | `RegisterDeviceDto` `{ platform, token, deviceId?, appVersion? }` | `RegisteredDeviceDto` (**201**) — never echoes `token` | `validation.failed` | no | stubbed (fixture registration `…0b51`) | `libs/contexts/notifications/src/presentation/http/buyer/devices.controller.ts` |
+| `DELETE /api/v1/buyer/devices/{id}` **(A6)** | `notifications:manage:self`; `@Audited` | `id` uuid | — | 204 always (never a probe) | `validation.failed` | no | stubbed | same |
+| `GET /api/v1/buyer/notification-preferences` **(A6)** | `notifications:manage:self` | `lang` | — | `NotificationPreferencesDto` (200, uncursored) | — | no | stubbed (`CHANNEL_PREFERENCE_FIXTURES`, `TOPIC_PREFERENCE_FIXTURES`) | `…/buyer/notification-preferences.controller.ts` |
+| `PUT /api/v1/buyer/notification-preferences` **(A6)** | `notifications:manage:self`; `@Audited` | `lang` | `UpdateNotificationPreferencesDto` `{ channels[], topics[] }` (both arrays required, `[]` = change none; omitted switches keep their value) | `NotificationPreferencesDto` (200) | `notifications.channel_unknown`, `topic_unknown`, `channel_required`, `topic_required` 422, `validation.failed` | no | stubbed (validated against the real rules in `…/domain/notification-preferences.ts`; nothing persists) | same |
+| `POST /api/v1/buyer/reviews` **(A7)** | `reviews:create`; `@Audited` | — | `CreateReviewDto` `{ productId, rating, title?, body }` | `BuyerReviewDto` (**201**) | `reviews.product_not_found` 404, `reviews.already_reviewed` 409, `reviews.purchase_required` 422, `validation.failed` | no | stubbed `libs/contexts/reviews/src/application/queries/reviews-buyer-stub.service.ts`: buyer is always رانيا; brocade `…0302` → 201 (`…0c04`, echoing `rating`/`title`/`body`), baklava `…0301` → 409, draft `…0303` → 422, other → 404 | `libs/contexts/reviews/src/presentation/http/buyer/buyer-reviews.controller.ts` |
 | `POST /api/v1/buyer/checkouts` | `checkout:create`; `@Audited` | — | `CreateCheckoutDto` | `CheckoutResponseDto` (**201**) | `idempotency.key_required`, `idempotency.key_invalid` 400, `idempotency.in_progress` 409, `idempotency.key_reused` 422, `validation.failed` | **doc** | stubbed (always the canonical checkout `…0600` with TS-000123 + TS-000124) | `libs/contexts/orders/src/presentation/http/buyer/orders.controller.ts` |
 | `GET /api/v1/buyer/checkouts/{id}` | `orders:read:self` | `id` uuid; `lang` | — | `CheckoutResponseDto` (200) | `orders.checkout_not_found` 404, `validation.failed` | no | stubbed | same |
 | `GET /api/v1/buyer/orders` | `orders:read:self` | `limit`, `cursor`, `sort` (documented: only `-createdAt`; ignored), `status` ∈ the 13 order statuses, `lang` | — | `PaginatedOrderSummaryDto` (200) | `validation.failed` | no | stubbed (four fixture orders; `status` filter applied; page one always) | same |
@@ -116,13 +136,13 @@ Every route: `@ApiBearerAuth()`, `aud` must be `buyer` (a merchant/admin token a
 | `GET /api/v1/buyer/orders/{id}/events` | `orders:read:self` | `id` uuid; `lang` | — | `OrderEventListDto` (200, unpaginated) | `orders.not_found`, `validation.failed` | no | stubbed | same |
 | `POST /api/v1/buyer/orders/{id}/cancel` | `orders:cancel:self`; `@Audited` | `id` uuid | `CancelOrderDto` | `OrderDetailDto` (**200**) | `orders.not_found` 404, `orders.invalid_transition` 409, the four `idempotency.*`, `validation.failed` | **doc** | stubbed — the transition is checked against the real table and simulated | same |
 | `POST /api/v1/buyer/orders/{id}/reorder` | `cart:write` (deliberately the cart permission); `@Audited` | `id` uuid | — | `ReorderResponseDto` (200) | `orders.not_found`, `validation.failed` | no | stubbed (`{ cartId: …0501, addedCount: 1, skipped: [] }` hard-coded) | same |
-| `GET /api/v1/buyer/orders/{id}/shipment` | `shipments:read:self` | `id` = **order** id uuid | — | `ShipmentDto` (200) | `shipping.shipment_not_found` 404 (any order before `accepted`), `auth.wrong_audience` 403, `validation.failed` | no | stubbed (`SHIPMENT_BY_ORDER`; ownership not filtered) — **not on the live host yet** | `libs/contexts/shipping/src/presentation/http/buyer/buyer-shipping.controller.ts` |
+| `GET /api/v1/buyer/orders/{id}/shipment` | `shipments:read:self` | `id` = **order** id uuid | — | `ShipmentDto` (200) | `shipping.shipment_not_found` 404 (any order before `accepted`), `auth.wrong_audience` 403, `validation.failed` | no | stubbed (`SHIPMENT_BY_ORDER`; ownership not filtered) — live on the host since the A7 deploy | `libs/contexts/shipping/src/presentation/http/buyer/buyer-shipping.controller.ts` |
 
 ### 1.3 Appendix — `merchant/` and `admin/` routes (path only)
 
-`merchant/`: `GET/POST products`, `PATCH products/{id}`, `PUT products/{id}/variants`, `PUT products/{id}/prices`, `PATCH products/{id}/inventory`, `PUT products/{id}/media`, `POST products/{id}/submit` · `GET me` · `POST media/uploads` · `GET/PATCH application`, `POST application/documents`, `POST application/agreement/sign`, `POST application/submit` · `GET/PATCH stores/{id}`, `GET/POST stores/{id}/staff`, `DELETE stores/{id}/staff/{assignmentId}` · `GET orders`, `GET orders/{id}`, `POST orders/{id}/accept|reject|unavailable` · `GET statement`, `GET statement/postings` · `GET orders/{id}/shipment`.
+`merchant/`: `GET/POST products`, `PATCH products/{id}`, `PUT products/{id}/variants`, `PUT products/{id}/prices`, `PATCH products/{id}/inventory`, `PUT products/{id}/media`, `POST products/{id}/submit` · `GET me` · `POST media/uploads` · `GET/PATCH application`, `POST application/documents`, `POST application/agreement/sign`, `POST application/submit` · `GET/PATCH stores/{id}`, `GET/POST stores/{id}/staff`, `DELETE stores/{id}/staff/{assignmentId}` · `GET orders`, `GET orders/{id}`, `POST orders/{id}/accept|reject|unavailable` · `GET statement`, `GET statement/postings` · `GET orders/{id}/shipment` · **(A7)** `POST products/bulk-import`, `POST products/bulk-price-update` (both 202 + job id), `GET bulk-jobs/{id}` · `GET reviews`, `POST reviews/{id}/reply`.
 
-`admin/`: `GET reports/counters` · `GET audit` · `GET/POST categories`, `PATCH categories/{id}` · `GET/POST products`, `GET/PATCH products/{id}`, `PUT products/{id}/variants|prices`, `PATCH products/{id}/inventory`, `POST products/{id}/submit|approve|reject|publish|unpublish` · `PUT pages/{slug}`, `PUT slots/{code}/items` · `POST geo/nodes`, `PATCH geo/nodes/{id}`, `POST markets`, `PATCH markets/{id}` · `PUT i18n/messages` · `GET me` · `GET users`, `POST users/lookup`, `GET users/{id}`, `POST users/{id}/suspend`, `GET roles`, `POST users/{id}/role-assignments` · `GET ledger/accounts`, `GET ledger/accounts/{code}/postings` · `POST media/uploads` · `GET merchants/applications`, `POST merchants/{id}/verify|request-changes`, `POST merchants/import` · `GET/POST merchants`, `PATCH merchants/{id}`, `POST merchants/{id}/activate|suspend`, `GET/POST stores`, `PATCH stores/{id}` · `GET notifications/deliveries` · `GET orders`, `GET orders/{id}`, `POST orders/{id}/confirm|accept|reject|ship|deliver|delivery-failed|cancel`, `POST orders/{id}/returns`, `POST orders/{id}/returns/{rid}/accept|decline` · `GET/PUT settlement/commission-rules`, `GET settlement/items`, `POST settlement/remittances` · `GET/POST carriers`, `PUT carriers/{id}/zones`, `GET orders/{id}/shipment`, `POST shipments/{id}/events`.
+`admin/`: `GET reports/counters` · `GET audit` · `GET/POST categories`, `PATCH categories/{id}` · `GET/POST products`, `GET/PATCH products/{id}`, `PUT products/{id}/variants|prices`, `PATCH products/{id}/inventory`, `POST products/{id}/submit|approve|reject|publish|unpublish` · `PUT pages/{slug}`, `PUT slots/{code}/items` · `POST geo/nodes`, `PATCH geo/nodes/{id}`, `POST markets`, `PATCH markets/{id}` · `PUT i18n/messages` · `GET me` · `GET users`, `POST users/lookup`, `GET users/{id}`, `POST users/{id}/suspend`, `GET roles`, `POST users/{id}/role-assignments` · `GET ledger/accounts`, `GET ledger/accounts/{code}/postings` · `POST media/uploads` · `GET merchants/applications`, `POST merchants/{id}/verify|request-changes`, `POST merchants/import` · `GET/POST merchants`, `PATCH merchants/{id}`, `POST merchants/{id}/activate|suspend`, `GET/POST stores`, `PATCH stores/{id}` · `GET notifications/deliveries` · `GET orders`, `GET orders/{id}`, `POST orders/{id}/confirm|accept|reject|ship|deliver|delivery-failed|cancel`, `POST orders/{id}/returns`, `POST orders/{id}/returns/{rid}/accept|decline` · `GET/PUT settlement/commission-rules`, `GET settlement/items`, `POST settlement/remittances` · `GET/POST carriers`, `PUT carriers/{id}/zones`, `GET orders/{id}/shipment`, `POST shipments/{id}/events` · **(A6)** `GET/PUT categories/{id}/attributes`, `GET/POST attributes`, `PATCH attributes/{id}`, `PUT attributes/{id}/options` · `GET/POST settlement/reconciliations`, `POST settlement/payouts`, `GET settlement/merchants/{id}/balance` · `GET notifications/templates`, `PUT notifications/templates/{code}` · **(A7)** `GET payments`, `POST payments/{id}/refund` · `GET reviews`, `POST reviews/{id}/hide|restore` · `GET/POST coupons`, `PATCH coupons/{id}`.
 
 ---
 
@@ -346,9 +366,26 @@ Detail = **card + `description`, `variants[]`, `media[]`, `store{}`, `attributes
                 "original": "https://cdn.trendsy.example/public/fixtures/baklava-original.webp" } }
   ],
   "store": { "id": "0199aa00-0000-7000-8000-000000000211", "slug": "bayt-al-sham-sweets", "name": "بيت الشام للحلويات", "marketCode": "HAMIDIYAH" },
-  "attributes": [ { "code": "weight", "name": "الوزن", "value": "1 كغ" } ]
+  "attributes": [
+    { "code": "weight", "name": "الوزن", "value": "1 كغ", "valueCode": null },
+    { "code": "color", "name": "اللون", "value": "ذهبي", "valueCode": "gold" }
+  ]
 }
 ```
+
+**(A6)** The list response is now `ProductListResponseDto` — the page plus a `facets[]` block computed over the whole filtered set (never over the page), with the same shape as `GET public/categories/{id}/filters`:
+
+```json
+{
+  "items": [ /* ProductCardDto… */ ], "nextCursor": null, "hasMore": false,
+  "facets": [
+    { "code": "color", "label": "اللون", "type": "select",
+      "values": [ { "value": "gold", "label": "ذهبي", "count": 1 } ] }
+  ]
+}
+```
+
+A value nothing in the set carries is omitted, so `count` is never 0. Send a facet back as `?attrs=color:gold` (repeat the parameter per value; repeats of one code widen, different codes narrow). `type` is how a product stores the attribute (`select`/`multi_select`), **not** whether the shopper may multi-select — they always may. Source: `libs/contexts/catalog/src/application/queries/attribute-filters.ts`, `…/public/dto/product-list.query.dto.ts`.
 
 | Field | Type | Presence | Localised | Design note |
 |---|---|---|---|---|
@@ -362,9 +399,9 @@ Detail = **card + `description`, `variants[]`, `media[]`, `store{}`, `attributes
 | `variants[]` | `ProductVariantDto` | req (detail) | `name` yes | `{ id, name, price, inStock }`. **One flat name per variant — no option axes (colour/size), no SKU, no stock count, no `compareAtPrice`, no unit/weight fields** `(not in code)`. |
 | `media[]` | `ProductMediaDto` | req (detail) | — | `{ assetId, urls }`, cover first (array order; no `isPrimary`, no `sortOrder` field). Fixtures: 1 image per product; merchant input cap **20** (`@ArrayMaxSize(20)`, `libs/contexts/catalog/src/presentation/http/merchant/dto/merchant-product.dto.ts:71-83`). |
 | `store` | `ProductStoreCardDto` | req (detail) | name yes | |
-| `attributes[]` | `ProductAttributeDto` | req (detail) | `name`, `value` yes | `{ code, name, value }` — value is a resolved string, not typed. May be `[]` (the draft fixture has none). |
+| `attributes[]` | `ProductAttributeDto` | req (detail) | `name`, `value` yes | `{ code, name, value, valueCode }` — `value` is a resolved string, not typed; **`valueCode` (A6)** is the dictionary option code behind it (`null` for `number`/`text` attributes), so a PDP chip can deep-link `?attrs=<code>:<valueCode>`. Fixtures: baklava `weight`=«1 كغ» + `color`=«ذهبي»/`gold`; brocade `material`=«حرير وقطن» (no code), `fabric_type`=«بروكار»/`brocade`, `color`=«أحمر»/`red`; the draft has none. Note `material` is a free-text attribute **not in the dictionary** (§5.12), so it never appears as a facet. |
 
-**Price / Variant** as separate entities: there is no separate price endpoint or price object; a price is `variant.price` (Money) and `product.price`. Effective-dated prices (ADR-0013) are `(not in code)` in the stub — a variant has one price. Product `status` never reaches the public API; only `published` products are in `PRODUCT_FIXTURES` (§3.2). Missing that a PDP would want: `compareAtPrice`/discount badge, rating, review count (Slice 3), stock quantity or "only N left", delivery estimate, share URL (build it from `slug`), related products, `createdAt`/"new" flag, per-variant images.
+**Price / Variant** as separate entities: there is no separate price endpoint or price object; a price is `variant.price` (Money) and `product.price`. Effective-dated prices (ADR-0013) are `(not in code)` in the stub — a variant has one price. Product `status` never reaches the public API; only `published` products are in `PRODUCT_FIXTURES` (§3.2). Missing that a PDP would want: `compareAtPrice`/discount badge, stock quantity or "only N left", delivery estimate, share URL (build it from `slug`), related products, `createdAt`/"new" flag, per-variant images. **Rating and review count are not on the product document** — they come from a second call, `GET public/products/{id}/reviews` → `summary` (§2.25) **(A7)**; the card has no rating either.
 
 ### 2.9 Asset / Media (`MediaAssetDto`, `MediaVariantUrlsDto`)
 
@@ -609,6 +646,174 @@ Missing: delivery ETA/window, courier contact, payment status (COD has none), a 
 
 No image ratio is enforced or declared anywhere `(not in code)`; admin input caps a slot at 50 items. Two slots exist (`home_hero`, `home_featured`; §5.9); no list-of-slots endpoint.
 
+### 2.19 Category filters / form schema (`CategoryFiltersResponseDto`, `CategoryFormSchemaResponseDto`) **(A6)**
+
+`libs/contexts/catalog/src/presentation/http/public/dto/category-attributes.response.dto.ts`; logic `…/application/queries/catalog-attributes-stub.service.ts`; dictionary fixtures §5.12.
+
+`GET public/categories/{id}/filters` — the sidebar definition:
+
+```json
+{
+  "categoryId": "0199aa00-0000-7000-8000-000000000a02",
+  "filters": [
+    { "code": "fabric_type", "label": "نوع القماش", "type": "select",
+      "values": [ { "value": "brocade", "label": "بروكار", "count": 1 } ] },
+    { "code": "color", "label": "اللون", "type": "select",
+      "values": [ { "value": "red", "label": "أحمر", "count": 1 } ] }
+  ]
+}
+```
+
+| Field | Type | Presence | Localised | Design note |
+|---|---|---|---|---|
+| `categoryId` | uuid | req | — | Echoes the id asked for even when the schema is inherited from an ancestor. |
+| `filters[]` / `facets[]` | `CategoryFilterDto` / `ProductFacetDto` | req | `label` yes | Same shape in both places; in form order. A `number`/`text`/`boolean` attribute never appears (only option-valued types are filterable). |
+| `values[].value` | string | req | — | The option **code** (`red`), what `?attrs=` takes. |
+| `values[].count` | int | req | — | Always ≥ 1; counts published products in the subtree. |
+
+`GET public/categories/{id}/form-schema` (`fields[]` of `CategoryFormFieldDto`: `attributeId`, `code`, `label`, `type` ∈ `select|multi_select|number|text|boolean`, `unit` nullable, `isRequired`, `isFilterable`, `sortOrder`, `options[{ id, code, label }]`) is the **merchant product form** definition — a buyer app does not need it. A subcategory with no bindings inherits its nearest bound ancestor's set (both routes). Missing for a buyer filter UI: price-band bounds (min/max price in the set), sort options, "in stock only" `(not in code)`.
+
+### 2.20 Search hit and suggestion (`SearchHitDto`, `SuggestionDto`) **(A6)**
+
+`libs/contexts/search/src/presentation/http/public/dto/search.dto.ts`; fixtures `libs/contexts/search/src/domain/search.fixtures.ts`; matching `…/domain/search-matching.ts`.
+
+```json
+{ "items": [ {
+    "id": "0199aa00-0000-7000-8000-000000000301", "kind": "product", "slug": "mixed-baklava",
+    "name": "بقلاوة مشكلة", "storeName": "بيت الشام للحلويات",
+    "priceFrom": { "amountMinor": "8500000", "currency": "SYP", "display": "85,000.00" },
+    "imageUrl": "https://cdn.trendsy.example/public/fixtures/baklava-md.webp",
+    "categoryId": "0199aa00-0000-7000-8000-000000000a11" } ],
+  "nextCursor": null, "hasMore": false }
+```
+
+| Field | Type | Presence | Localised | Design note |
+|---|---|---|---|---|
+| `id`, `kind`, `slug`, `name` | uuid, enum, string, string | req | `name` yes | `kind` ∈ `product|store|category`; **only `product` is served today**; `store`/`category` hits arrive with OpenSearch (Slice 2). Branch on `kind`; deep-link by `slug`. |
+| `storeName`, `priceFrom`, `imageUrl`, `categoryId` | string, Money, string, uuid | **optional** | `storeName` yes | Present on `product` hits only; declared optional so future kinds do not re-type the client. `imageUrl` is the `md` variant. |
+
+Suggestion (`GET public/search/suggest` → `{ suggestions: [{ text, kind }] }`): a **term, not a link** — no id, no slug; picking one re-runs `GET public/search?q=<text>`. Fixture terms (§5.16): «بقلاوة مشكلة» (product), «حلويات شرقية» (category), «قماش بروكار دمشقي» (product), «أقمشة دمشقية» (category); English equivalents under `lang=en`. Missing: highlight ranges, result counts per kind, "did you mean", recent searches `(not in code)`. `SEARCH_ERROR_CODES` is empty — search never raises a domain error; an unmatched `q` is an empty page, never a 404.
+
+### 2.21 Coupon validation (`CouponValidationDto`, `ValidatedCouponDto`) **(A7)**
+
+`libs/contexts/cart/src/presentation/http/dto/cart.dto.ts` (bottom); logic `libs/contexts/cart/src/application/queries/coupon-validation.ts`; fixtures `libs/contexts/cart/src/domain/cart.fixtures.ts` (`CART_COUPON_FIXTURES`, §5.13).
+
+```json
+{
+  "valid": true, "code": "AHLAN10", "reason": null,
+  "coupon": {
+    "id": "0199aa00-0000-7000-8000-000000000901", "code": "AHLAN10", "name": "خصم أهلاً 10%",
+    "kind": "percentage", "percentOffBps": 1000, "amountOff": null,
+    "minimumOrder": { "amountMinor": "5000000", "currency": "SYP", "display": "50,000.00" },
+    "validFrom": "2026-08-01T00:00:00.000Z", "validUntil": "2026-12-31T23:59:59.000Z"
+  },
+  "itemsSubtotal": { "amountMinor": "20500000", "currency": "SYP", "display": "205,000.00" },
+  "discount": { "amountMinor": "2050000", "currency": "SYP", "display": "20,500.00" },
+  "totalAfterDiscount": { "amountMinor": "18450000", "currency": "SYP", "display": "184,500.00" }
+}
+```
+
+| Field | Type | Presence | Localised | Design note |
+|---|---|---|---|---|
+| `valid` | bool | req | — | The answer. **A wrong code is `200 valid:false`, never an error.** |
+| `code` | string | req | — | Uppercased echo. Input: 3–20 `^[A-Z0-9]{3,20}$` — upper-case client-side. |
+| `reason` | enum, nullable | req | — | `unknown_code`, `not_started`, `expired`, `usage_limit_reached`, `already_used`, `not_applicable_to_items`, `minimum_not_met` (evaluated in that order, `coupon-validation.ts:38-52`). **No server wording** — the client owns the seven sentences per locale. A switched-off coupon is `unknown_code` (indistinguishable from nonexistent). |
+| `coupon` | object, nullable | req | `name` yes | The terms, present on every reason except `unknown_code` — so "expired on 31 July" can be said precisely. `kind` ∈ `percentage|fixed`; `percentOffBps` is basis points (1000 = 10 %); `amountOff`/`minimumOrder` Money or null. No `description` on the wire (the fixture has one; `ValidatedCouponDto` drops it). |
+| `itemsSubtotal`, `discount`, `totalAfterDiscount` | Money | req | — | `discount` is zero on every refusal, so always renderable. Excludes delivery. A percentage is applied to the **eligible** subtotal (category-restricted coupons: lines in `appliesToCategoryIds` only); a fixed amount is capped at the eligible subtotal. |
+
+Nothing is attached to the cart by this call; `PUT buyer/cart/coupon` does that and still returns the cart with **totals unchanged** (stub). The cart's own `couponCode`/`discount` fields are unchanged from §2.10.
+
+### 2.22 Payment intent (`PaymentIntentDto`, `CreatePaymentIntentDto`) **(A7)**
+
+`libs/contexts/payments/src/presentation/http/buyer/dto/payment-intent.dto.ts`; machine `…/application/queries/payment-intent.machine.ts`; fixtures `libs/contexts/payments/src/domain/payments.fixtures.ts` (§5.14).
+
+```json
+{
+  "id": "0199aa00-0000-7000-8000-000000000811",
+  "orderId": "0199aa00-0000-7000-8000-000000000604", "orderNumber": "TS-000131",
+  "provider": "sham_cash", "status": "requires_action", "statusLabel": "بانتظار الدفع",
+  "amount":     { "amountMinor": "24500000", "currency": "SYP", "display": "245,000.00" },
+  "refunded":   { "amountMinor": "0", "currency": "SYP", "display": "0.00" },
+  "refundable": { "amountMinor": "0", "currency": "SYP", "display": "0.00" },
+  "redirectUrl": "https://pay.shamcash.example/checkout/0199aa00-0000-7000-8000-000000000811",
+  "returnUrl": "https://trendsy.example/orders/TS-000131",
+  "createdAt": "2026-09-02T09:00:00.000Z", "expiresAt": "2026-09-02T09:30:00.000Z",
+  "succeededAt": null, "failureCode": null
+}
+```
+
+| Field | Type | Presence | Localised | Design note |
+|---|---|---|---|---|
+| `provider` | enum | req | — | `sham_cash`, `paymera` (`PAYMENT_PROVIDERS`). Chosen by the buyer in the create body. The provider's hosted page is where the buyer pays — there is no in-app card form. |
+| `status` / `statusLabel` | enum / string | req | label yes | §3.9. `statusLabel` is served (AR/EN literals in `PAYMENT_INTENT_STATUS_LABELS`, not the i18n store). |
+| `amount` | Money | req | — | Taken from the **order**, never the body (24,500,000 = TS-000131's total, delivery included). |
+| `refunded`, `refundable` | Money | req | — | `refundable` is zero unless `succeeded`. Refunds are an admin action (`POST admin/payments/{id}/refund`, `finance` only); the buyer sees the result here. |
+| `redirectUrl` | string, nullable | req | — | Only while `requires_action` and before `expiresAt` (30 min window in the fixture). Open it in the system browser / a web view; the provider returns the buyer to `returnUrl`. |
+| `returnUrl` | string, nullable | req | — | Echo of the create body (`https` only, ≤ 2048; on mobile the app's deep link). |
+| `expiresAt`, `succeededAt`, `failureCode` | string / nullable / nullable | req | — | `failureCode` is "a stable code" — **no enumeration exists in code** `(not in code)`; render it generically. |
+
+Rule the screen depends on: **poll `GET buyer/payments/intents/{id}` after the return, do not trust the redirect** — only a provider webhook (Phase B) moves the intent out of `requires_action`. A `failed`/`expired` attempt does not block a retry (new intent); an already-`succeeded` order answers 409 on create. Design fact worth flagging: an intent is **per order**, so a two-store checkout would be paid twice (STATUS *Pending decisions*: "intent-per-order vs ADR-0017's payment-per-checkout" — open). `paymentMethodCode` on checkout is still `@IsIn(['cod'])`, so today no prepaid checkout can even be created; the intent routes exist ahead of the checkout that would need them.
+
+### 2.23 Push device (`RegisterDeviceDto`, `RegisteredDeviceDto`) **(A6)**
+
+`libs/contexts/notifications/src/presentation/http/buyer/dto/buyer-notifications.dto.ts`. Request `{ platform: android|ios|web, token (≤ 4096, write-only, never returned or logged), deviceId? (≤ 100 — the same value as `X-Device-Id`, so a re-register replaces the row), appVersion? (≤ 40) }` → 201 `{ id, platform, createdAt }`. There is **no list of registered devices**; the app keeps the `id` and calls `DELETE buyer/devices/{id}` on sign-out (204 always). Push itself is Slice 2 (`PUSH_PROVIDER=none`), so registering succeeds and delivers nothing.
+
+### 2.24 Notification preferences (`NotificationPreferencesDto`) **(A6)**
+
+Same DTO file; rules `libs/contexts/notifications/src/domain/notification-preferences.ts`; fixtures §5.15.
+
+```json
+{
+  "channels": [
+    { "channel": "sms",      "label": "رسائل نصية",        "enabled": true,  "required": true },
+    { "channel": "whatsapp", "label": "واتساب",            "enabled": false, "required": false },
+    { "channel": "push",     "label": "إشعارات التطبيق",   "enabled": true,  "required": false }
+  ],
+  "topics": [
+    { "topic": "order_updates",    "label": "تحديثات الطلب",       "enabled": true,  "required": false },
+    { "topic": "promotions",       "label": "العروض والتخفيضات",   "enabled": false, "required": false },
+    { "topic": "account_security", "label": "أمان الحساب",         "enabled": true,  "required": true }
+  ]
+}
+```
+
+Two switch groups, labels served for the request locale. `required: true` rows (`sms`, `account_security`) **cannot be switched off** — render the switch disabled; sending `enabled:false` answers 422 `notifications.channel_required` / `topic_required`. `PUT` takes `{ channels: [{ channel, enabled }], topics: [{ topic, enabled }] }` — both arrays required, `[]` allowed, omitted switches keep their value, unknown codes 422 rather than ignored. No quiet hours, no per-topic channel matrix, no email `(not in code)`.
+
+### 2.25 Review (`PublicReviewDto`, `ReviewRatingSummaryDto`, `BuyerReviewDto`) **(A7)**
+
+`libs/contexts/reviews/src/presentation/http/public/dto/public-review.dto.ts`, `…/buyer/dto/buyer-review.dto.ts`, `…/dto/review-shared.dto.ts`; fixtures `libs/contexts/reviews/src/domain/reviews.fixtures.ts` (§5.13).
+
+`GET public/products/{id}/reviews` (baklava):
+
+```json
+{
+  "items": [
+    { "id": "0199aa00-0000-7000-8000-000000000b01", "rating": 5, "title": "بقلاوة ممتازة",
+      "body": "وصلت طازجة وبالوقت المحدد، والطعم مثل بقلاوة السوق تماماً. سأطلب مرة أخرى.",
+      "authorName": "رانيا ح.", "isVerifiedPurchase": true, "createdAt": "2026-08-28T10:15:00.000Z",
+      "reply": { "id": "0199aa00-0000-7000-8000-000000000c05", "reviewId": "0199aa00-0000-7000-8000-000000000b01",
+                 "body": "شكراً لك! سعداء أن البقلاوة وصلت طازجة.", "createdAt": "2026-08-28T15:40:00.000Z" } },
+    { "id": "0199aa00-0000-7000-8000-000000000c02", "rating": 3, "title": null,
+      "body": "الطعم جيد لكن الكمية أقل مما توقعت مقابل السعر.",
+      "authorName": null, "isVerifiedPurchase": false, "createdAt": "2026-08-29T18:05:00.000Z", "reply": null }
+  ],
+  "nextCursor": null, "hasMore": false,
+  "summary": { "count": 2, "average": 4, "distribution": { "1": 0, "2": 0, "3": 1, "4": 0, "5": 1 } }
+}
+```
+
+| Field | Type | Presence | Localised | Design note |
+|---|---|---|---|---|
+| `rating` | int 1–5 | req | — | Whole stars only; no half stars. |
+| `title` | string, nullable | req | **no** | ≤ 120 on input; `null` when the shopper wrote none. |
+| `body` | string | req | **no** | ≤ 2000 on input; the shopper's own language, never translated. |
+| `authorName` | string, nullable | req | — | Given name + family initial («رانيا ح.»); **`null` is a real state** (account with no display name) — the client supplies a placeholder. Never phone, customer number or id. |
+| `isVerifiedPurchase` | bool | req | — | `false` is a real state, not an error (the 3★ fixture). |
+| `reply` | object, nullable | req | `body` no | One store reply at most (`reviews.already_replied` on a second); `{ id, reviewId, body ≤ 1000, createdAt }`. |
+| `summary` | object | req | — | Over **every published** review of the product, not the page or the `rating` filter. `average` is one decimal, exactly `0` when `count` is 0 — gate the block on `count`. `distribution` keyed `"1"`–`"5"`. |
+
+Buyer's own review (`POST buyer/reviews` → `BuyerReviewDto`) adds `productId`, `productName` (localised), `status` ∈ `published|hidden`, `orderNumber` (nullable; the verifying order, never public). Rules: **verified purchase required** (a product with no order of yours → 422 `reviews.purchase_required`), one review per product (409 `reviews.already_reviewed`), no edit or delete endpoint, no photos, no "was this helpful" votes, no per-store rating, no buyer list of their own reviews `(not in code)`. Moderation is `published ⇄ hidden` by an admin; a hidden review vanishes from the public list and the buyer is not told why. Report reasons (`POST public/reviews/{id}/report`): `spam`, `offensive`, `off_topic`, `fake`, `other` + optional `note` ≤ 500 — machine codes, client wording.
+
 ---
 
 ## 3. Enums and state machines
@@ -650,7 +855,7 @@ Buyer cancel rule as implemented: **status-based only** — `CANCELLABLE_STATUSE
 
 ### 3.5 Payment method
 
-`libs/contexts/payments/src/domain/payments.fixtures.ts:18-35`: one code, `cod`. Checkout enforces `@IsIn(['cod'])`. No payment-intent states exist in code (the doc's `requires_action → pending → captured | failed | expired` machine is Slice 3, entirely absent).
+`libs/contexts/payments/src/domain/payments.fixtures.ts:18-35`: one method code, `cod`. Checkout enforces `@IsIn(['cod'])`. Payment **intents** now exist as a stub (§3.9) but no checkout can reference them yet.
 
 ### 3.6 Cart warning codes
 
@@ -672,6 +877,41 @@ Free text ≤ 50, not enumerated (`libs/contexts/identity/src/presentation/http/
 | Session `audience` / `clientPlatform` | `buyer`\|`merchant`\|`admin` / `android`\|`ios`\|`web`\|`unknown` | `libs/contexts/identity/src/presentation/http/buyer/dto/session.dto.ts`; `libs/platform/src/context/request-context.ts:44` |
 | Reorder `skipped[].reason` | documented `variant_retired`, `out_of_stock`, `store_inactive` — **a plain string, no enum** | `libs/contexts/orders/src/presentation/http/buyer/dto/order.dto.ts:330-343` |
 | Merchant / store status | never on a buyer response | `libs/contexts/merchants/src/presentation/http/public/dto/store.response.dto.ts` has no `status` |
+
+### 3.9 Payment intent status — `PAYMENT_INTENT_STATUSES` **(A7)**
+
+`libs/contexts/payments/src/domain/payments.fixtures.ts` (statuses + `PAYMENT_INTENT_STATUS_LABELS`), machine `…/application/queries/payment-intent.machine.ts` (`nextPaymentIntentStatus`, forbidden edges pinned by a spec). Values: `requires_action`, `succeeded`, `failed`, `expired`, `refunded`.
+
+| From | To | How | Label (ar / en) |
+|---|---|---|---|
+| — | `requires_action` | `POST buyer/payments/intents` | بانتظار الدفع / Awaiting payment |
+| `requires_action` | `succeeded` | provider webhook (Phase B) | مدفوع / Paid |
+| `requires_action` | `failed` | provider webhook | فشل الدفع / Payment failed |
+| `requires_action` | `expired` | `expiresAt` passes | انتهت صلاحية الدفع / Payment expired |
+| `succeeded` | `refunded` | admin refund of the full amount (`finance` only); a partial refund keeps `succeeded` with `refunded` > 0 | مُعاد بالكامل / Fully refunded |
+
+DOC≠CODE: the doc's `pending` and `captured` states do not exist; the code uses `requires_action → succeeded`. Refund reasons (admin-side, never on a buyer response): `order_cancelled`, `order_returned`, `duplicate_payment`, `goodwill`. No buyer-triggered transition; no "cancel payment" endpoint.
+
+### 3.10 Review status and report reasons **(A7)**
+
+`libs/contexts/reviews/src/domain/reviews.fixtures.ts`: `REVIEW_STATUSES = ['published','hidden']` — `published →hide→ hidden →restore→ published`, admin only (`…/application/queries/reviews-admin-stub.service.ts`); the two off-edge calls are 409 `reviews.invalid_transition`. A buyer's `BuyerReviewDto.status` is the only place a buyer sees it. `REVIEW_REASONS = ['spam','offensive','off_topic','fake','other']` for reports; no labels served.
+
+### 3.11 Coupon validation reasons **(A7)**
+
+`libs/contexts/cart/src/application/queries/coupon-validation.ts:4-12`: `unknown_code`, `not_started`, `expired`, `usage_limit_reached`, `already_used`, `not_applicable_to_items`, `minimum_not_met`; coupon `kind` ∈ `percentage|fixed`. Admin-side coupon `status` (`scheduled|active|expired|disabled`, `libs/contexts/promotions/src/domain/promotions.fixtures.ts`) never reaches a buyer.
+
+### 3.12 Notifications, devices, search, attributes **(A6)**
+
+| Set | Values | Source |
+|---|---|---|
+| Notification channel | `sms`, `whatsapp`, `push` | `libs/contexts/notifications/src/domain/notifications.fixtures.ts` (`NOTIFICATION_CHANNELS`) |
+| Notification topic | `order_updates`, `promotions`, `account_security` | same (`NOTIFICATION_TOPICS`) |
+| Device platform | `android`, `ios`, `web` | same (`DEVICE_PLATFORMS`) |
+| Search hit / suggestion `kind` | `product`, `store`, `category` (only `product` served) | `libs/contexts/search/src/domain/search.fixtures.ts:5` |
+| Attribute `type` | `select`, `multi_select`, `number`, `text`, `boolean` | `libs/contexts/catalog/src/domain/catalog.fixtures.ts` (`ATTRIBUTE_TYPES`) |
+| Filter / facet `type` | `select`, `multi_select` only | `category-attributes.response.dto.ts` |
+| Payment provider | `sham_cash`, `paymera` | `payments.fixtures.ts` (`PAYMENT_PROVIDERS`) |
+| Bulk job `state` / `kind` (merchant only) | `queued|processing|completed|failed` / `import|price_update` | `catalog.fixtures.ts` |
 
 ---
 
@@ -873,7 +1113,7 @@ Product 1 — `mixed-baklava`:
   "variants": [ { "id": "0199aa00-0000-7000-8000-000000000311", "name": "كيلو", "price": { "amountMinor": "8500000", "currency": "SYP", "display": "85,000.00" }, "inStock": true } ],
   "media": [ { "assetId": "0199aa00-0000-7000-8000-000000000401", "urls": { "thumb": "https://cdn.trendsy.example/public/fixtures/baklava-thumb.webp", "sm": "https://cdn.trendsy.example/public/fixtures/baklava-sm.webp", "md": "https://cdn.trendsy.example/public/fixtures/baklava-md.webp", "lg": "https://cdn.trendsy.example/public/fixtures/baklava-lg.webp", "original": "https://cdn.trendsy.example/public/fixtures/baklava-original.webp" } } ],
   "store": { "id": "0199aa00-0000-7000-8000-000000000211", "slug": "bayt-al-sham-sweets", "name": "بيت الشام للحلويات", "marketCode": "HAMIDIYAH" },
-  "attributes": [ { "code": "weight", "name": "الوزن", "value": "1 كغ" } ]
+  "attributes": [ { "code": "weight", "name": "الوزن", "value": "1 كغ", "valueCode": null }, { "code": "color", "name": "اللون", "value": "ذهبي", "valueCode": "gold" } ]
 }
 ```
 
@@ -895,7 +1135,7 @@ Product 2 — `damascene-brocade-fabric`:
   "variants": [ { "id": "0199aa00-0000-7000-8000-000000000321", "name": "متر", "price": { "amountMinor": "12000000", "currency": "SYP", "display": "120,000.00" }, "inStock": true } ],
   "media": [ { "assetId": "0199aa00-0000-7000-8000-000000000402", "urls": { "thumb": "https://cdn.trendsy.example/public/fixtures/brocade-thumb.webp", "sm": "https://cdn.trendsy.example/public/fixtures/brocade-sm.webp", "md": "https://cdn.trendsy.example/public/fixtures/brocade-md.webp", "lg": "https://cdn.trendsy.example/public/fixtures/brocade-lg.webp", "original": "https://cdn.trendsy.example/public/fixtures/brocade-original.webp" } } ],
   "store": { "id": "0199aa00-0000-7000-8000-000000000212", "slug": "anwal-dimashq", "name": "أنوال دمشق", "marketCode": "MIDHAT_PASHA" },
-  "attributes": [ { "code": "material", "name": "الخامة", "value": "حرير وقطن" } ]
+  "attributes": [ { "code": "material", "name": "الخامة", "value": "حرير وقطن", "valueCode": null }, { "code": "fabric_type", "name": "نوع القماش", "value": "بروكار", "valueCode": "brocade" }, { "code": "color", "name": "اللون", "value": "أحمر", "valueCode": "red" } ]
 }
 ```
 
@@ -971,6 +1211,52 @@ Shipments: `…0701` for TS-000124 (`in_transit`) and `…0702` for TS-000117 (`
 - Any other number: `GET public/dev/last-otp?phone=` returns the code when `DEV_ENDPOINTS_ENABLED=true` (local only; **off on the shared host**, so only the test phones work there).
 - Console SMS adapter prints the code locally; no real SMS provider exists yet.
 
+### 5.12 Attribute dictionary and category bindings **(A6)**
+
+`libs/contexts/catalog/src/domain/catalog.fixtures.ts` (`ATTRIBUTE_FIXTURES`, `CATEGORY_ATTRIBUTE_BINDINGS`):
+
+| Attribute id | code | type | name ar / en | unit | filterable | options (code → ar / en) |
+|---|---|---|---|---|---|---|
+| `…0a21` | `color` | select | اللون / Colour | — | yes | `red` أحمر / Red · `blue` أزرق / Blue · `gold` ذهبي / Gold |
+| `…0a22` | `weight` | number | الوزن / Weight | كغ / kg | no | — |
+| `…0a23` | `fabric_type` | select | نوع القماش / Fabric type | — | yes | `silk` حرير / Silk · `cotton` قطن / Cotton · `brocade` بروكار / Brocade |
+
+Bindings: root category حلويات `…0a01` → `weight` (required, not filterable, order 10) + `color` (optional, filterable, 20); root أقمشة `…0a02` → `fabric_type` (required, filterable, 10) + `color` (optional, filterable, 20). The subcategories `…0a11`/`…0a12` bind nothing and inherit their parent. Live filter values: sweets → `color:gold` (1); fabrics → `fabric_type:brocade` (1), `color:red` (1); `blue`, `silk`, `cotton` are dictionary options no product carries, so they never appear in `/filters`.
+
+### 5.13 Coupons and reviews **(A7)**
+
+Coupons (`libs/contexts/cart/src/domain/cart.fixtures.ts` `CART_COUPON_FIXTURES`, mirrored in `libs/contexts/promotions/src/domain/promotions.fixtures.ts`):
+
+| id | code | kind | value | minimum | valid | usage | name ar / en | against the fixture cart (subtotal 20 500 000) |
+|---|---|---|---|---|---|---|---|---|
+| `…0901` | `AHLAN10` | percentage | 1000 bps (10 %) | 5 000 000 | 2026-08-01 → 2026-12-31 | 137 / 1000 | خصم أهلاً 10% / Ahlan 10% off | **valid**, discount 2 050 000 → 18 450 000 |
+| `…0902` | `SOUQ25` | fixed | 2 500 000 | none | 2026-06-01 → 2026-07-31 | 312 / 500 | عرض السوق / Souq offer | `expired`, terms still returned |
+
+Any other code → `unknown_code`, `coupon: null`. The admin-created `HALAWIYAT15` (`…0903`, 15 %, sweets subtree only) is not in the cart's list, so it validates as `unknown_code`.
+
+Reviews (`libs/contexts/reviews/src/domain/reviews.fixtures.ts`):
+
+| id | product | rating | title | author | verified (order) | status | reply |
+|---|---|---|---|---|---|---|---|
+| `…0b01` | baklava `…0301` | 5 | بقلاوة ممتازة | رانيا ح. | yes (TS-000117) | published | `…0c05` «شكراً لك! سعداء أن البقلاوة وصلت طازجة.» 2026-08-28T15:40Z |
+| `…0c02` | baklava | 3 | — | `null` | no | published | none |
+| `…0c03` | brocade `…0302` | 2 | — | `null` | no | **hidden** (`offensive`, 2026-08-31) | never listed publicly |
+| `…0c04` | brocade | 5 | قماش رائع | رانيا ح. | yes (TS-000124) | the answer `POST buyer/reviews` returns | — |
+
+Report receipt id `…0c06`. Purchases known to the stub: رانيا bought baklava (TS-000117) and brocade (TS-000124).
+
+### 5.14 Payment intents **(A7)**
+
+`libs/contexts/payments/src/domain/payments.fixtures.ts`: `…0811` on TS-000131 (`…0604`, 24 500 000) — `sham_cash`, `requires_action`, created 2026-09-02T09:00Z, expires 09:30Z, redirect `https://pay.shamcash.example/checkout/…0811`; `…0812` on TS-000124 (`…0602`, 12 500 000) — `paymera`, `succeeded` 2026-08-31T09:58Z, `redirectUrl: null`. Provider checkout bases are placeholders (`pay.shamcash.example`, `pay.paymera.example`). Creating for TS-000124 → 409; for TS-000123/TS-000117 → 404 `payments.order_not_found` (the stub knows only two orders).
+
+### 5.15 Notification preferences and device **(A6)**
+
+`libs/contexts/notifications/src/domain/notifications.fixtures.ts`: channels `sms` (on, **required**), `whatsapp` (off), `push` (on); topics `order_updates` (on), `promotions` (off), `account_security` (on, **required**). Device registration always answers `…0b51`, `android`, 2026-09-02T09:00Z. SMS templates the buyer will receive (admin-editable, `TEMPLATE_FIXTURES`): `order_placed` «مرحباً {{customerName}}، استلمنا طلبك {{orderNumber}} وسنتصل بك لتأكيده.», `order_confirmed`, `order_shipped` «طلبك {{orderNumber}} في الطريق إليك مع {{carrierName}}.», `otp` «رمز الدخول: {{otpCode}} — صالح لمدة {{minutes}} دقائق.».
+
+### 5.16 Search terms **(A6)**
+
+`libs/contexts/search/src/domain/search.fixtures.ts`: product 1 matches بقلاوة, بقلاوة مشكلة, baklava, mixed baklava, حلويات, حلويات شرقية, sweets, oriental sweets, بيت الشام, دمشق, damascus; product 2 matches قماش, بروكار, قماش بروكار دمشقي, brocade, damascene brocade, damascene brocade fabric, fabric, fabrics, أقمشة, أقمشة دمشقية, damascene fabrics, أنوال دمشق, دمشق, damascus. Matching folds diacritics, tatweel, alef variants and ta-marbuta (`…/domain/search-matching.ts`), so «بقلاوه» finds the baklava. «دمشق» returns both products.
+
 ---
 
 ## 6. Errors
@@ -1040,6 +1326,7 @@ Status rules (`libs/platform/src/http/errors/status-for-code.ts:11-80`): an exac
 | `auth.otp_cooldown` | 429 + `Retry-After` | ★ تم إرسال رمز للتو، انتظر قليلًا |
 | `auth.locked` | 429 + `Retry-After` | محاولات كثيرة، حاول بعد قليل |
 | `auth.password_invalid` | 422 | declared, no error class raises it |
+| `auth.provider_unavailable` **(A7)** | **503** (exact map, `status-for-code.ts`) | ★ تسجيل الدخول بهذه الطريقة غير متاح حاليًا / That sign-in method is unavailable — the answer of both OAuth routes today; hide or disable the button, do not show an outage screen |
 
 **`idempotency.*`** (`libs/platform/src/idempotency/idempotency.errors.ts:12-21`): `key_required` 400 · `key_invalid` 400 (key must be 8–64 of `[A-Za-z0-9._-]`) · `key_reused` 422 · `in_progress` 409 + `Retry-After: 1`.
 
@@ -1048,8 +1335,20 @@ Status rules (`libs/platform/src/http/errors/status-for-code.ts:11-80`): an exac
 | code | status |
 |---|---|
 | **`cart.not_found`**, **`cart.item_not_found`** | 404 |
-| **`catalog.product_not_found`**, `catalog.category_not_found`, `catalog.store_not_found` | 404 |
+| **`catalog.product_not_found`**, **`catalog.category_not_found`** (form-schema / filters / import-template), `catalog.store_not_found`, `catalog.attribute_not_found`, `catalog.bulk_job_not_found` | 404 |
 | `catalog.invalid_transition` | 409 |
+| `catalog.attribute_options_not_supported`, `catalog.attribute_code_taken` (note: `_taken` is **not** a 409 suffix, so this answers 422), `catalog.bulk_file_invalid` | 422 |
+| **`notifications.channel_unknown`**, **`notifications.topic_unknown`**, **`notifications.channel_required`**, **`notifications.topic_required`** (all `PUT buyer/notification-preferences`), `notifications.template_variable_unknown`, `notifications.template_subject_not_supported` | 422 |
+| `notifications.template_not_found` | 404 |
+| **`payments.intent_not_found`**, **`payments.order_not_found`**, `payments.payment_not_found` | 404 |
+| **`payments.invalid_transition`** (order already paid, or refund of a non-succeeded intent) | 409 |
+| `payments.refund_exceeds_amount` | 422 |
+| `promotions.coupon_not_found` | 404 |
+| `promotions.coupon_code_already_exists` | 409 |
+| `promotions.coupon_invalid_period` | 422 |
+| **`reviews.not_found`**, **`reviews.product_not_found`** | 404 |
+| **`reviews.already_reviewed`**, `reviews.already_replied`, `reviews.invalid_transition` | 409 |
+| **`reviews.purchase_required`** | 422 |
 | **`content.page_not_found`**, **`content.slot_not_found`** | 404 |
 | **`geo.market_not_found`**, `geo.node_not_found` | 404 |
 | `identity.user_not_found`, **`identity.challenge_not_found`**, **`identity.address_not_found`** | 404 |
@@ -1068,7 +1367,9 @@ Status rules (`libs/platform/src/http/errors/status-for-code.ts:11-80`): an exac
 | `settlement.store_not_found` | 404 |
 | **`shipping.shipment_not_found`**, `shipping.carrier_not_found` | 404 |
 | `shipping.invalid_transition` | 409 |
-| `analytics.*`, `audit.*`, `i18n.*`, `notifications.*`, `payments.*`, `promotions.*`, `ref.*`, `reviews.*`, `search.*` | registries empty |
+| `analytics.*`, `audit.*`, `i18n.*`, `ref.*`, `search.*` | registries empty (search deliberately: no route can raise one) |
+
+None of the A6/A7 context codes has its own Arabic sentence — every one shows the per-status title of §6.3 (`reviews.purchase_required` → «تعذّر قبول البيانات المرسلة», `payments.invalid_transition` → «لا يمكن تنفيذ هذا الإجراء الآن»). Only `auth.provider_unavailable` got a ★ title.
 
 ### 6.3 Per-status titles (the wording most buyer errors show)
 
@@ -1131,7 +1432,12 @@ Pipe: `libs/platform/src/http/setup/configure-http-app.ts:92-105` (`whitelist` +
 
 | Endpoint | Paginated | Default / max | `sort` keys honoured | Filters |
 |---|---|---|---|---|
-| `GET public/products` | yes | 20 / 100 | none in code (only `-createdAt` documented; validated by pattern, ignored) | `q` (≤ 200), `marketId`, `storeId`, `categoryId`, `priceMin`, `priceMax` — all validated; **only `storeId` and `categoryId` filter today** |
+| `GET public/products` | yes (+ `facets[]` over the whole set) | 20 / 100 | none in code (only `-createdAt` documented; validated by pattern, ignored) | `q` (≤ 200), `marketId`, `storeId`, `categoryId` (subtree), `priceMin`, `priceMax`, `attrs` (repeat) — all validated; **only `storeId`, `categoryId` and `attrs` filter today** **(A6)** |
+| `GET public/search` **(A6)** | yes | 20 / 100 | none | `q` required, `categoryId` (ancestry), `marketId` |
+| `GET public/search/suggest` **(A6)** | no (capped server-side; 4 fixture terms) | — | products before categories | `q` required |
+| `GET public/products/{id}/reviews` **(A7)** | yes (+ `summary{}` over all published) | 20 / 100 | newest first (`sort` validated, ignored) | `rating` exact 1–5 |
+| `GET public/categories/{id}/filters`, `form-schema`, `import-template` **(A6/A7)** | no (bounded by the dictionary; template ≤ 60 columns, ≤ 200 options) | — | form order | — |
+| `GET buyer/notification-preferences` **(A6)** | no (3 channels × 3 topics) | — | fixed | — |
 | `GET public/stores/{id}/products` | yes | 20 / 100 | none | none (no `q`, no category) |
 | `GET buyer/orders` | yes | 20 / 100 | `-createdAt` only, ignored by the stub | `status` |
 | `GET buyer/orders/{id}/events` | no (bounded by the machine) | — | — | — |
@@ -1161,7 +1467,9 @@ Pipe: `libs/platform/src/http/setup/configure-http-app.ts:92-105` (`whitelist` +
 | `otpPhone` | 3 | 10 min | phone (last 9 digits) | `otp/request` |
 | `otpDevice` | 10 | 1 h | `X-Device-Id` (skipped without it) | `otp/request` |
 | `otpIp` | 100 | 1 h | IP | `otp/request`, `otp/verify`, `dev/last-otp` |
-| `prereg` | 50 | 1 h | IP | `pre-registrations`, `merchants/applications` |
+| `prereg` | 50 | 1 h | IP | `pre-registrations`, `merchants/applications`, **`reviews/{id}/report`** (A7) |
+
+The two OAuth routes sit in the `public` bucket (`public-oauth.controller.ts:64,89`) — DOC≠CODE with `STATUS.md`, which says they share `otpIp`.
 
 Refusal: 429 `rate_limit.exceeded` with `Retry-After` and `RateLimit-Limit` / `RateLimit-Remaining` / `RateLimit-Reset` (the tightest bucket). Budgets are per caller across routes, not per route. Send `X-Device-Id` from mobile so the per-device bucket, not the shared-IP one, applies.
 
@@ -1184,8 +1492,15 @@ Refusal: 429 `rate_limit.exceeded` with `Retry-After` and `RateLimit-Limit` / `R
 | Device label | ≤ 200 printable | `otp-verify.dto.ts:19-32` |
 | Pre-registration `phone` / `source` / `qrCode` | ≤ 20 / ≤ 100 / ≤ 64; `consent` must be `true` | `libs/contexts/analytics/src/presentation/http/public/dto/pre-registration.dto.ts` |
 | Track `event` / `source` / `utm.*` | `^[a-z0-9_.]{1,64}$` / ≤ 100 / ≤ 100 each | `…/dto/track-event.dto.ts` |
-| Search `q` | ≤ 200 | `product-list.query.dto.ts` |
-| Review text | `(not in code)` — Slice 3 | — |
+| Search `q` | ≤ 200 on products; **1–200, required** on `search` / `suggest` | `product-list.query.dto.ts`; `libs/contexts/search/src/presentation/http/public/dto/search.dto.ts` |
+| Review `title` / `body` **(A7)** | ≤ 120 / ≤ 2000, `rating` int 1–5 | `libs/contexts/reviews/src/domain/reviews.fixtures.ts:12-15`, `…/buyer/dto/buyer-review.dto.ts` |
+| Review report `note` **(A7)** | ≤ 500 | `…/public/dto/public-review.dto.ts` |
+| Coupon validate `code` **(A7)** | 3–20, `^[A-Z0-9]{3,20}$` | `cart.dto.ts` (`ValidateCouponDto`) |
+| Payment `returnUrl` **(A7)** | ≤ 2048, `https` only | `payment-intent.dto.ts` |
+| Push `token` / `deviceId` / `appVersion` **(A6)** | ≤ 4096 / ≤ 100 / ≤ 40 | `buyer-notifications.dto.ts` |
+| Preference `channel` / `topic` codes **(A6)** | ≤ 40, `^[a-z][a-z0-9_]*$`, ≤ 20 entries per array | same |
+| OAuth `idToken` / `device` **(A7)** | ≤ 4096 `^[A-Za-z0-9._~+/=-]+$` / ≤ 200 printable | `oauth-sign-in.dto.ts` |
+| `attrs` filter value | `<code>:<optionCode>`, repeat per value | `product-list.query.dto.ts` |
 
 ---
 
@@ -1211,6 +1526,10 @@ Note `customerNumber` is a **number** here and a **string** (`TS-C-000101`) on `
 
 **Client headers** the app should send (`libs/platform/src/http/setup/configure-http-app.ts:25-40`): `X-Client-Platform` (`android|ios|web`), `X-Client-Version`, `X-Client-Build`, `X-Device-Id`, `X-Device-Model`, `X-OS-Name`, `X-OS-Version`, `Accept-Language`, `X-Anonymous-Token`, `Idempotency-Key`. Values ≤ 100 printable chars.
 
+**Google / Apple sign-in (A7).** `POST public/auth/oauth/google|apple` take `{ idToken, locale?, device? }` from the provider SDK and are documented to answer the same `TokenPairDto` as `otp/verify` (web: refresh cookie; mobile: body). **Today every call answers 503 `auth.provider_unavailable`** («تسجيل الدخول بهذه الطريقة غير متاح حاليًا») — no provider is integrated, and the backend refuses to mint a token from an unverified id token. Design the buttons, ship them hidden or disabled behind that code, and keep the phone flow primary; `isNewUser` semantics will be the same as OTP when it lands.
+
+**Push (A6).** After sign-in register the handset with `POST buyer/devices`; on sign-out `DELETE buyer/devices/{id}`. Notification switches: §2.24.
+
 **`GET buyer/me`** full shape: exactly `{ id, customerNumber, phone, locale, createdAt }` (§2.1). `abilities`: `(not in code)`. `DELETE buyer/me`: 204, immediate anonymisation by contract, every session revoked; stubbed as a no-op today; irreversible; no undo window.
 
 ---
@@ -1223,9 +1542,11 @@ Note `customerNumber` is a **number** here and a **string** (`TS-C-000101`) on `
 - **Cancel window**: status-based only — `placed`, `confirmed`, `accepted` (until the store ships); no hour rule (§3.1). `cancellable` on the detail is authoritative. Cancel needs a `reasonCode` from `kind=cancel` and takes an optional note; answers the updated `OrderDetailDto` (status `cancelled`, label «تم إلغاء الطلب»); after shipping, 409 `orders.invalid_transition` («لا يمكن تنفيذ هذا الإجراء الآن»).
 - **`OrderEvent`** contains `seq`, `status`, `label`, `occurredAt`, `note` only — no type, actor or reason (§2.13). Timeline = the buyer-visible slice; a cancelled order's reason is not returned.
 - **Reorder**: yes, `POST buyer/orders/{id}/reorder` → `{ cartId, addedCount, skipped[{ variantId, reason }] }`; the buyer then opens the cart.
-- **Rating / reviews**: `(not in code)` — Slice 3 (`POST buyer/reviews`, `GET public/products/{id}/reviews` are `planned`).
+- **Coupon check (A7)**: `POST buyer/cart/coupon/validate` answers `valid` + a typed `reason` + the resulting `discount`/`totalAfterDiscount` **before** checkout (§2.21) — the one place a pre-checkout total preview exists; still excludes delivery. Guests have no validate route (bearer only).
+- **Rating / reviews (A7)**: `POST buyer/reviews` (verified purchase, one per product), `GET public/products/{id}/reviews` with `summary`, `POST public/reviews/{id}/report` (§2.25). Product cards and detail carry **no** rating field; the reviews call is separate.
+- **Prepayment (A7)**: `POST buyer/payments/intents` + `GET buyer/payments/intents/{id}` exist as stubs (§2.22, §3.9) but checkout still accepts `paymentMethodCode: "cod"` only, so no real prepaid flow can be started from a checkout today.
 - **Returns**: no buyer endpoint `(not in code)`; `return_requested` is created by an admin (`POST admin/orders/{id}/returns`) from `delivered` only, so a buyer "request a return" screen has no API — the return-policy page text promises one.
-- **Payment**: COD only; no payment status, receipt or intent objects on buyer routes.
+- **Payment**: COD only on checkout; the order documents carry no payment status or receipt. Intent objects live on the separate `buyer/payments/intents` routes (§2.22).
 
 ---
 
@@ -1271,4 +1592,12 @@ Note `customerNumber` is a **number** here and a **string** (`TS-C-000101`) on `
 - **`?lang=en-US` resolves to Arabic while the header form resolves to English** (`libs/platform/src/http/context/locale.ts:36-48`); web deep links must pass `?lang=en` exactly.
 - **Only two published products and two stores exist as fixtures** (`catalog.fixtures.ts`); list screens must be designed for real volume against Prism's `mock:dynamic` output, and empty/one-item states are what the live stub shows.
 - **HEIC is refused at upload** (`upload-mime.ts`); the iOS upload flow (merchant panel, later buyer reviews) must transcode on device.
-- **`Idempotency-Key` is document-only on checkout and cancel** (`orders.controller.ts:32-41`); the client must still generate and retain one per attempt now so the behaviour does not change when the interceptor lands.
+- **`Idempotency-Key` is document-only on checkout, cancel and payment-intent create** (`orders.controller.ts:32-41`, `payments-buyer.controller.ts`); the client must still generate and retain one per attempt now so the behaviour does not change when the interceptor lands.
+- **Coupon refusal wording is client-owned (A7)** — seven `reason` codes (§3.11), no server sentence; design needs seven localised messages, one of which («expired») can quote `coupon.validUntil`.
+- **Review author placeholder (A7)** — `authorName` is `null` for accounts with no display name (the profile has no name field at all, §2.1), so today **every** review a real buyer writes would show the placeholder; the fixture's «رانيا ح.» comes from a name the API cannot yet collect.
+- **Hosted-checkout return flow (A7)** — the provider page opens from `redirectUrl` and returns to the app's `returnUrl`; the app must then poll the intent (§2.22). Design the "waiting for confirmation" state; there is no in-app payment form and no `failureCode` enumeration.
+- **Payment intent per order vs one per checkout** — a two-store basket would be paid twice under the current shape; open in STATUS *Pending decisions*. Keep the payment screen per order until ruled.
+- **OAuth buttons answer 503 by design (A7)** — treat `auth.provider_unavailable` as "hide this method", never as an outage.
+- **Search hits are products only (A6)**; store and category hits (and any ranking) come with OpenSearch. Suggestions are terms, not links — tapping one must re-run the search.
+- **Facet counts are over the whole filtered set (A6)**, never the page, and only `select`/`multi_select` attributes can be filters; a price-range slider has no bounds source `(not in code)`.
+- **Required notification switches (A6)** — `sms` and `account_security` must render disabled-on; there is no email channel and no quiet-hours setting.

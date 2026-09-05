@@ -6,14 +6,16 @@ const TONES = {
   success: { bg: 'var(--surface-success-subtle)', fg: 'var(--text-success)', icon: 'circle-check' },
   warning: { bg: 'var(--surface-warning-subtle)', fg: 'var(--text-warning)', icon: 'triangle-alert' },
   danger: { bg: 'var(--surface-danger-subtle)', fg: 'var(--text-danger)', icon: 'circle-alert' },
+  /* Global non-blocking connectivity banner. Never a modal. */
+  offline: { bg: 'var(--surface-offline)', fg: 'var(--text-offline)', icon: 'wifi-off' },
 };
 
-export function Alert({ tone = 'info', title, children, action, onDismiss, style }) {
+export function Alert({ tone = 'info', title, children, action, onDismiss, banner, style }) {
   const t = TONES[tone] || TONES.info;
   return (
-    <div style={{
-      display: 'flex', gap: 12, padding: '14px 16px', background: t.bg,
-      borderRadius: 'var(--radius-card-sm)', ...style,
+    <div role={tone === 'danger' ? 'alert' : 'status'} style={{
+      display: 'flex', gap: 12, padding: banner ? '10px 16px' : '14px 16px', background: t.bg,
+      borderRadius: banner ? 0 : 'var(--radius-tag)', alignItems: banner ? 'center' : 'flex-start', ...style,
     }}>
       <span style={{ color: t.fg, display: 'flex', flex: '0 0 auto', marginTop: 1 }}><Icon name={t.icon} size={18} strokeWidth={2} /></span>
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>

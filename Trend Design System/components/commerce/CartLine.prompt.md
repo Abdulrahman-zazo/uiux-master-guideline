@@ -1,8 +1,8 @@
-One row of the cart or order — media, variant summary, stepper, line total. Bottom hairline included.
+One cart or order line — 4:5 thumb, name, variant, unit × qty, stepper, line total via `Money`, explicit remove, inline warning slot.
 
 ```jsx
-<CartLine item={line} onQuantity={n => setQty(line.id, n)} onRemove={() => remove(line.id)} />
-<CartLine item={line} readOnly />
+<CartLine item={line} onQuantity={n => patch(line.id, n)} onRemove={() => del(line.id)} />
+<CartLine item={orderLine} readOnly />
 ```
 
-Line total = `price × quantity`, computed inside. Don't pre-multiply.
+`lineTotal` is the server's number — never multiply on the client. `available: false` dims the thumb, disables the stepper and shows the warning; the user continues, nothing blocks.

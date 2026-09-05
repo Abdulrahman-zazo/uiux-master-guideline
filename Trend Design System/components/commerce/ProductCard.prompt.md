@@ -1,9 +1,8 @@
-The catalogue tile — 16px-radius media card with brand eyebrow, 2-line name clamp, rating and price.
+The catalogue tile: 4:5 image, "صُوِّر في المحل" chip, name (2-line clamp), store · market line, price via `Money`. Hairline, 16px radius, no shadow, no heart, no stars.
 
 ```jsx
-<ProductCard product={{brand:'Nour Atelier', name:'Embroidered linen abaya', price:174, compareAt:249, rating:4.6, reviews:128}} onWishlist={fn} />
+<ProductCard product={p} marketName="الحميدية" onClick={() => go('/p/' + p.slug)} />
 <ProductCard layout="row" product={p} />
 ```
 
-The discount badge is computed from `compareAt` — never pass "-30%" by hand.
-Grid tiles sit in a `repeat(auto-fill, minmax(220px, 1fr))` grid with 24px gap.
+Grid: `repeat(2, 1fr)` mobile · `repeat(4, 1fr)` desktop, 12–24px gap. The price is **never hidden and never "on request"**.

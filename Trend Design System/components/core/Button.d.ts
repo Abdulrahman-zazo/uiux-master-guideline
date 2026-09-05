@@ -1,20 +1,17 @@
-/**
- * @startingPoint section="Core" subtitle="Pill buttons in every variant and size" viewport="700x220"
- */
 export interface ButtonProps {
   children?: React.ReactNode;
-  /** primary = the purple fill, one per view. inverse = white pill on dark/imagery. */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'subtle' | 'inverse' | 'danger';
+  /** primary = purple fill, one per screen. outline = the paired secondary (purple-200 border, purple text). Every primary is paired with an outline or text action. */
+  variant?: 'primary' | 'outline' | 'secondary' | 'ghost' | 'subtle' | 'inverse' | 'danger';
   /** sm 36px · md 44px · lg 52px */
   size?: 'sm' | 'md' | 'lg';
-  /** Lucide icon name placed before the label. */
   iconStart?: string;
-  /** Lucide icon name placed after the label. */
   iconEnd?: string;
   fullWidth?: boolean;
   disabled?: boolean;
-  /** Swaps the leading icon for a spinner and blocks input. */
+  /** Locked "processing" state for idempotent money-moving calls — spinner, input blocked, aria-busy. */
   loading?: boolean;
+  /** Text shown while loading, e.g. "جارٍ إنشاء الطلب…". */
+  processingLabel?: string;
   type?: 'button' | 'submit' | 'reset';
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   style?: React.CSSProperties;

@@ -1,31 +1,28 @@
-<!-- @dsCard group="Components" viewport="700x420" name="Commerce" subtitle="Product cards, price, rating, variants, stock" -->
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<!-- @dsCard group="Components" viewport="700x520" name="Commerce" subtitle="Money, product card, shop card, trust strip, cart line, summary" -->
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script src="../../_ds_bundle.js"></script>
-<style>body{margin:0;padding:28px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}.lbl{font:500 10px/1.4 var(--font-ui);letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}</style>
-</head><body><div id="root"></div>
-<script type="text/babel">
-const { ProductCard, PriceBlock, RatingStars, OptionPicker, StockStatus, ProductMedia } = window.TrendDesignSystem_7e8edd;
-function Demo(){
-const [size,setSize]=React.useState('M');const [col,setCol]=React.useState('Plum');
-const p={brand:'Nour Atelier',name:'Embroidered linen abaya with silk trim',price:174,compareAt:249,rating:4.6,reviews:128};
-return(<div style={{display:'grid',gridTemplateColumns:'220px 220px 1fr',gap:20,alignItems:'start'}}>
-<ProductCard product={p} onWishlist={()=>{}}/>
+<style>body{margin:0;padding:24px;background:var(--surface-canvas)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}</style>
+</head><body><div id="root"></div><script type="text/babel">
+const { ProductCard, Money, ShopCard, TrustStrip, CartLine, OrderSummary, ProductMedia, Button } = window.TrendDesignSystem_7e8edd;
+const price={ amountMinor: "8500000", currency: "SYP", display: "85,000.00" }, price2={ amountMinor: "12000000", currency: "SYP", display: "120,000.00" };
+const p={id:'1',slug:'mixed-baklava',name:'بقلاوة مشكلة',price,storeId:'s',storeName:'بيت الشام للحلويات',categoryId:'c'};
+const store={id:'s',slug:'bayt-al-sham-sweets',name:'بيت الشام للحلويات',marketCode:'HAMIDIYAH',marketName:'الحميدية',isFoundingPartner:true};
+const line={id:'l',name:'قماش بروكار دمشقي',variantName:'متر',unitPrice:price2,qty:2,lineTotal:{ amountMinor: "24000000", currency: "SYP", display: "240,000.00" },available:true};
+const bad={...line,id:'b',name:'صينية نحاس مطروقة',variantName:'٤٠ سم',qty:1,unitPrice:{ amountMinor: "22000000", currency: "SYP", display: "220,000.00" },lineTotal:{ amountMinor: "22000000", currency: "SYP", display: "220,000.00" },available:false};
+function Demo(){return(<div style={{display:'grid',gridTemplateColumns:'170px 1fr 240px',gap:18,alignItems:'start'}}>
+<ProductCard product={p} marketName="الحميدية"/>
 <div className="col" style={{gap:14}}>
-<ProductCard layout="row" product={{...p,name:'Silk scarf'}}/>
-<div className="col" style={{gap:8}}>
-<span className="lbl">Price</span>
-<PriceBlock amount={249}/><PriceBlock amount={174} compareAt={249} size="lg"/>
+<div className="row" style={{gap:18}}><Money value={price} size="xl"/><Money value={price} size="md"/><Money value={{ amountMinor: "9000000", currency: "SYP", display: "90,000.00" }} size="sm" tone="discount" strike/><Money value={price} lang="en" size="sm"/></div>
+<ShopCard compact store={store} locationLabel="دمشق القديمة" onOpen={()=>{}}/>
+<TrustStrip/>
+<CartLine item={line} onQuantity={()=>{}} onRemove={()=>{}}/>
+<CartLine item={bad} onQuantity={()=>{}} onRemove={()=>{}}/>
 </div>
-</div>
-<div className="col" style={{gap:16}}>
-<div className="col" style={{gap:6}}><span className="lbl">Rating</span><RatingStars value={4.6} count={128}/><RatingStars value={5} size={18} showValue/></div>
-<OptionPicker label="Size" options={['XS','S','M',{value:'L',soldOut:true}]} value={size} onChange={setSize}/>
-<OptionPicker label="Colour" kind="swatch" value={col} onChange={setCol} options={[{value:'Plum',color:'#6D1B72'},{value:'Mauve',color:'#864596'},{value:'Ink',color:'#090909'},{value:'Bone',color:'#EBEBE9'}]}/>
-<div className="row" style={{gap:16}}><StockStatus level="in"/><StockStatus level="low" count={3}/><StockStatus level="out"/></div>
-</div></div>)}
+<OrderSummary itemsSubtotal={{ amountMinor: "20500000", currency: "SYP", display: "205,000.00" }} deliveryFee={{ amountMinor: "1000000", currency: "SYP", display: "10,000.00" }} discount={{ amountMinor: "0", currency: "SYP", display: "0.00" }} grandTotal={{ amountMinor: "21500000", currency: "SYP", display: "215,000.00" }} stores={[{storeName:'بيت الشام للحلويات',itemsCount:1,total:{ amountMinor: "9000000", currency: "SYP", display: "90,000.00" }},{storeName:'أنوال دمشق',itemsCount:1,total:{ amountMinor: "12500000", currency: "SYP", display: "125,000.00" }}]} showCallNote><Button fullWidth size="lg">تأكيد الطلب</Button></OrderSummary>
+</div>)}
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
 </script></body></html>
